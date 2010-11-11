@@ -5,6 +5,12 @@ require 'matcher/xml'
 
 describe Matcher::Xml do
 
+  def verify_mismatch(path, message)
+    @xml.match(@rhs).should be_false
+    @xml.mismatches.should have(1).mismatch
+    @xml.mismatches[path].should == message
+  end
+
   it "should initialise with a string" do
     xml = Matcher::Xml.new("<foo></foo>")
     xml.lhs.should be_a_kind_of(Nokogiri::XML::Document)
@@ -48,12 +54,6 @@ describe Matcher::Xml do
       </bookstore>
       eos
       @xml.match(rhs).should be_true
-    end
-
-    def verify_mismatch(path, message)
-      @xml.match(@rhs).should be_false
-      @xml.mismatches.should have(1).mismatch
-      @xml.mismatches[path].should == message
     end
 
     context "elements" do
@@ -115,7 +115,7 @@ describe Matcher::Xml do
         </book>
         </bookstore>
         eos
-        verify_mismatch("/bookstore/book/@category", "expected attribute missing")
+        verify_mismatch("/bookstore/book", "expected attribute missing")
       end
 
       it "should not match when an attribute value doesn't match" do
@@ -126,7 +126,7 @@ describe Matcher::Xml do
         </book>
         </bookstore>
         eos
-        verify_mismatch("/bookstore/book/@category", "expected 'COOKING', got 'COOKINGx'")
+        verify_mismatch("/bookstore/book", "attribute 'category' expected 'COOKING', got 'COOKINGx'")
       end
 
       it "should not match when rhs has an extra attribute" do
@@ -210,6 +210,35 @@ describe Matcher::Xml do
       eos
       @xml.match(rhs)
       @xml.mismatches.should have(2).mismatches
+    end
+
+    it "mimatches should contain parent's path when an attribute doesn't match" do
+      
+      lhs = <<-eos
+      <bookstore>
+      <book category="COOKING">
+      <title lang="en">Everyday Italian</title>
+      </book>
+      <book category="FOO">
+      <title lang="en">Everyday French</title>
+      </book>
+      </bookstore>
+      eos
+      
+      
+      @rhs = <<-eos
+      <bookstore>
+      <book category="COOKING">
+      <title lang="en">Everyday Italian</title>
+      </book>
+      <book foo="bar">
+      <title lang="en">Everyday French</title>
+      </book>
+      </bookstore>
+      eos
+      
+      @xml = Matcher::Xml.new(lhs)
+      verify_mismatch("/bookstore/book[2]", "expected attribute missing")
     end
 
   end

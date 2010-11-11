@@ -58,11 +58,11 @@ module Nokogiri
     class Attr
       def match?(other, messages = {})
         if other.nil?
-          messages[path] = "expected attribute missing"
+          messages[parent.path] = "expected attribute missing"
           return false
         end
         match = value == other.value
-        messages[path] = "expected '#{value}', got '#{other.value}'" unless match
+        messages[parent.path] = "attribute '#{name}' expected '#{value}', got '#{other.value}'" unless match
         match
       end
     end

@@ -7,11 +7,13 @@ module Matcher
         puts "Documents matched"
       else
         puts "Documents didn't match:"
-        puts matcher.mismatches
+        puts matcher.mismatches.to_a.join(' : ')
+        puts 
         matcher.lhs.traverse do |e|
           print e.path
-          if matcher.mismatches[e.path]
-            puts "<======" if matcher.mismatches[e.path]
+          mismatch = matcher.mismatches[e.path]
+          if mismatch
+            puts " <====== #{mismatch}" if matcher.mismatches[e.path]
           else
             puts
           end
