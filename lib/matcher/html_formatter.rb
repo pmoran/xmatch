@@ -8,7 +8,7 @@ module Matcher
     TEMPLATE = File.dirname(__FILE__) + '/report.html.erb'
     REPORT_DIR = File.dirname(__FILE__) + '/../../reports'
 
-    def format(xml)
+    def format(xml, match_file)
       FileUtils.mkdir_p(REPORT_DIR)
       html = ERB.new(File.read(TEMPLATE))
       result = html.result(binding)
