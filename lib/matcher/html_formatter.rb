@@ -1,28 +1,18 @@
 require 'erb'
+require 'fileutils'
 
 module Matcher
 
   class HtmlFormatter
 
     TEMPLATE = File.dirname(__FILE__) + '/report.html.erb'
-    REPORT = File.dirname(__FILE__) + '/../../reports/index.html'
+    REPORT_DIR = File.dirname(__FILE__) + '/../../reports'
 
     def format(xml)
+      FileUtils.mkdir_p(REPORT_DIR)
       html = ERB.new(File.read(TEMPLATE))
       result = html.result(binding)
-      File.open(REPORT, 'w') { |f|  f.write(result) }
-      
-      # xml.lhs.traverse do | elem |
-      #   mismatch = xml.mismatches[elem.path]
-      #   print "#{elem.line}: #{elem.path}"
-      #   print " <========== #{mismatch}" if mismatch
-      #   puts
-      # end
-      
-      # mismatch = xml.mismatches[elem.path]
-      # puts elem.path
-      # puts "*******#{mismatch}" if mismatch
-
+      File.open(File.join(REPORT_DIR, "index.html"), 'w') { |f|  f.write(result) }
     end
 
   end
