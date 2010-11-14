@@ -30,8 +30,7 @@
 <body>
 
 <h2>XMatch Report</h2>
-<p>Matching with file <%= match_file %></p>
-<p><%= xml.mismatches.size%> mismatches found</p>
+<p>Matching with file <%= match_file %> : <%= xml.mismatches.size%> mismatches found</p>
 
 <table border="0" cellspacing="2" cellpadding="5">
 	<tr>
@@ -49,6 +48,11 @@
 	</tr>
 	<% end %>
 </table>
+
+<p>Compared (input) XML was:</p>
+<pre>
+<%= xml.lhs.to_html %>
+</pre>
 
 </body>
 </html>
