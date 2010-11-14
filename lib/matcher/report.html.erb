@@ -1,0 +1,53 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+
+	<title>XMatch Report</title>
+	
+	<STYLE type="text/css">
+	   body { background-color: #fff; color: #333; }
+
+	body, p, ol, ul, td {
+	  font-family: verdana, arial, helvetica, sans-serif;
+	  font-size:   12px;
+	  line-height: 18px;
+	}
+	
+	.pass {
+		background-color: #DBFFB4
+	}
+	.fail {
+		background-color: #FA5858
+	}
+	
+	 </STYLE>	
+	
+</head>
+
+<body>
+
+<h2>XMatch Report</h2>
+<p><%= xml.mismatches.size%> mismatches found</p>
+
+<table border="0" cellspacing="2" cellpadding="5">
+	<tr>
+		<th>Line</th>
+		<th>Path</th>
+		<th>Mismatch</th>
+	</tr>
+	<% xml.lhs.traverse do | elem | %>
+	  <% next if elem.xml? %>
+	  <% mismatch =  xml.mismatches[elem.path] %>
+	<tr class=<%= mismatch ? 'fail' : 'pass' %> >
+		<td><%= elem.line %></td>
+		<td><%= elem.path %></td>
+  		<td><%= mismatch || '&nbsp;' %></td>
+	</tr>
+	<% end %>
+</table>
+
+</body>
+</html>

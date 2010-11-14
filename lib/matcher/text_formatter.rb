@@ -13,7 +13,7 @@ module Matcher
           print e.path
           mismatch = matcher.mismatches[e.path]
           if mismatch
-            puts " <====== #{mismatch}" if matcher.mismatches[e.path]
+            puts " <====== #{mismatch}"
           else
             puts
           end
