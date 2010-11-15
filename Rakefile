@@ -27,5 +27,6 @@ task :match, :lhs, :rhs do |t, args|
   puts "** Matching #{args[:lhs]} with #{args[:rhs]}"
   xml = Matcher::Xml.new(File.read(args[:lhs]))
   xml.match(File.read(args[:rhs]))
-  Matcher::HtmlFormatter.new.format(xml, args[:lhs])
+  
+  Matcher::HtmlFormatter.new(:expected_file => args[:lhs]).format(xml)
 end
