@@ -4,7 +4,7 @@ module Matcher
 
   class Xml
 
-    attr_reader :lhs, :mismatches
+    attr_reader :lhs, :rhs, :mismatches
 
     def initialize(lhs)
       @lhs = parse(lhs)
@@ -13,7 +13,8 @@ module Matcher
 
     def match(rhs)
       @mismatches.clear
-      compare(@lhs, parse(rhs))
+      @rhs = parse(rhs)
+      compare(@lhs, @rhs)
     end
 
     private

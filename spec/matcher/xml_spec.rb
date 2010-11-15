@@ -11,14 +11,25 @@ describe Matcher::Xml do
     @xml.mismatches[path].should == message
   end
 
-  it "should initialise with a string" do
-    xml = Matcher::Xml.new("<foo></foo>")
-    xml.lhs.should be_a_kind_of(Nokogiri::XML::Document)
-  end
+  context "attributes" do
 
-  it "should initialise with a document" do
-    xml = Matcher::Xml.new(Nokogiri::XML("<foo></foo>"))
-    xml.lhs.should be_a_kind_of(Nokogiri::XML::Document)
+    before(:each) do
+      @xml = Matcher::Xml.new("<foo></foo>")
+    end
+
+    it "should initialise with a string" do
+      @xml.lhs.should be_a_kind_of(Nokogiri::XML::Document)
+    end
+
+    it "should initialise with a document" do
+      @xml.lhs.should be_a_kind_of(Nokogiri::XML::Document)
+    end
+
+    it "should provide the rhs after a match" do
+      @xml.match("<bar></bar>")
+      @xml.rhs.should be_a_kind_of(Nokogiri::XML::Document)
+    end
+
   end
 
   before(:each) do
@@ -213,7 +224,7 @@ describe Matcher::Xml do
     end
 
     it "mimatches should contain parent's path when an attribute doesn't match" do
-      
+
       lhs = <<-eos
       <bookstore>
       <book category="COOKING">
@@ -224,8 +235,8 @@ describe Matcher::Xml do
       </book>
       </bookstore>
       eos
-      
-      
+
+
       @rhs = <<-eos
       <bookstore>
       <book category="COOKING">
@@ -236,7 +247,7 @@ describe Matcher::Xml do
       </book>
       </bookstore>
       eos
-      
+
       @xml = Matcher::Xml.new(lhs)
       verify_mismatch("/bookstore/book[2]", "expected attribute missing")
     end
