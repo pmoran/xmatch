@@ -207,7 +207,7 @@ describe Matcher::Xml do
       eos
       @xml.match(rhs)
       @xml.mismatches.should_not be_empty
-      @xml.match(@lhs.clone)
+      @xml.match(@lhs)
       @xml.mismatches.should be_empty
     end
 
@@ -223,7 +223,7 @@ describe Matcher::Xml do
       @xml.mismatches.should have(2).mismatches
     end
 
-    it "mimatches should contain parent's path when an attribute doesn't match" do
+    it "should contain parent's path when an attribute doesn't match" do
 
       lhs = <<-eos
       <bookstore>
@@ -252,6 +252,36 @@ describe Matcher::Xml do
       verify_mismatch("/bookstore/book[2]", "expected attribute missing")
     end
 
+    context 'matches' do
+
+      it "should provide matches" do
+        lhs = "<bookstore><book></book></bookstore>"
+        xml = Matcher::Xml.new(lhs)
+        xml.match(lhs)
+        xml.matches.should have(2).matches
+        xml.matches.values.all? {|m| m == true}.should be_true
+      end
+
+    end
+
+  end
+
+  context "match_result" do
+    
+    it "returns 'matched' for a path that was matched" do
+      lhs = "<bookstore></bookstore>"
+      xml = Matcher::Xml.new(lhs)
+      xml.match(lhs)
+      xml.result_for("/bookstore").should == "matched"
+    end
+    
+    it "returns 'mismatched' for a path that was not matched" do
+      lhs = "<bookstore></bookstore>"
+      xml = Matcher::Xml.new(lhs)
+      xml.match("<bookstorex></bookstorex>")
+      xml.result_for("/bookstore").should == "mismatched"
+    end
+    
   end
 
 end

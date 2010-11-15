@@ -5,9 +5,9 @@ module Nokogiri
   module XML
 
     class Element
-      
-      def match?(other, messages = {})
-        @messages = messages
+
+      def match?(other, matcher)
+        @matcher = matcher
         children_match?(other) &&
           name_matches?(other) &&
           attributes_match?(other)
@@ -17,13 +17,13 @@ module Nokogiri
 
         def children_match?(other)
           match = children.size == other.children.size
-          @messages[path] = "expected #{children.size} children, got #{other.children.size}" unless match
+          @matcher.record(path, match, "expected #{children.size} children, got #{other.children.size}")
           match
         end
 
         def name_matches?(other)
           match = name == other.name
-          @messages[path] = "expected element '#{name}', got '#{other.name}'" unless match
+          @matcher.record(path, match, "expected element '#{name}', got '#{other.name}'")
           match
         end
 
@@ -31,10 +31,10 @@ module Nokogiri
           match = attributes.size == other.attributes.size
           if match
             attributes.each_pair do |name, lhs|
-              match = match && lhs.match?(other.attributes[name], @messages)
+              match = match && lhs.match?(other.attributes[name], @matcher)
             end
           else
-            @messages[path] = "expected #{attributes.size} attributes, got #{other.attributes.size}"
+            @matcher.record(path, match, "expected #{attributes.size} attributes, got #{other.attributes.size}")
           end
           match
         end
@@ -42,27 +42,27 @@ module Nokogiri
     end
 
     class Document
-      def match?(other, messages = {})
+      def match?(other, matcher = nil)
         true
       end
     end
 
     class Text
-      def match?(other, messages = {})
+      def match?(other, matcher)
         match = content == other.content
-        messages[path] = "expected '#{content}', got '#{other.content}'" unless match
+        matcher.record(path, match, "expected '#{content}', got '#{other.content}'")
         match
       end
     end
 
     class Attr
-      def match?(other, messages = {})
+      def match?(other, matcher)
         if other.nil?
-          messages[parent.path] = "expected attribute missing"
+          matcher.record(parent.path, false, "expected attribute missing")
           return false
         end
         match = value == other.value
-        messages[parent.path] = "attribute '#{name}' expected '#{value}', got '#{other.value}'" unless match
+        matcher.record(parent.path, match, "attribute '#{name}' expected '#{value}', got '#{other.value}'")
         match
       end
     end
