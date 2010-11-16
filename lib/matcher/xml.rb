@@ -1,4 +1,5 @@
 require 'matcher/nokogiri_extensions'
+require 'ostruct'
 
 module Matcher
 
@@ -18,38 +19,26 @@ module Matcher
     end
 
     def record(path, result, message = nil)
-      if result
-        @results[path] = result
-      else
-        @results[path] = message
-      end
+      @results[path] = OpenStruct.new(:result => result, :message => message)
     end
 
     def result_for(path)
-      if (@results[path] == true)
-        return "matched"
-      else
-        return "mismatched"
-      end
+      @results[path].result ? "matched" : "mismatched"
     end
 
     def matches
-      results(true)
+      match_info = {}
+      @results.each_pair { |k, v| match_info[k] = '' if v.result }
+      match_info
     end
-
+    
     def mismatches
-      mismatches = {}
-      @results.each_pair {|k, v| mismatches[k] = v unless v == true }
-      mismatches
+      match_info = {}
+      @results.each_pair { |k, v| match_info[k] = v.message unless v.result }
+      match_info
     end
 
     private
-
-      def results(success)
-        requested_results = {}
-        @results.each_pair {|k, v| requested_results[k] = v if v == success }
-        requested_results
-      end
 
       def parse(xml)
         xml_as_string = xml.instance_of?(Nokogiri::XML::Document) ? xml.to_xml : xml

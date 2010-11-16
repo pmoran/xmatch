@@ -15,14 +15,18 @@ module Matcher
     def format(xml)
       FileUtils.mkdir_p(@report_dir)
       actual_filename = create_actual_file(xml)
+      expected_filename = create_expected_file
 
       html = ERB.new(File.read(TEMPLATE))
-      expected_filename = @expected_file
       result = html.result(binding)
       File.open(File.join(@report_dir, "xmatch.html"), 'w') { |f|  f.write(result) }
     end
 
     private
+    
+      def create_expected_file
+        @expected_file
+      end
 
       def create_actual_file(xml)
         actual_filename = File.join(@report_dir, "actual.xml")

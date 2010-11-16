@@ -66,15 +66,15 @@ describe Matcher::Xml do
       eos
       @xml.match(rhs).should be_true
     end
-    
+
     it "should be true when a string is matched with a document" do
       rhs = <<-eos
       <bookstore>
       <book category="COOKING">
       <title lang="en">Everyday Italian</title>
       </book>
-      
-      
+
+
       </bookstore>
       eos
 
@@ -268,34 +268,35 @@ describe Matcher::Xml do
 
     context 'matches' do
 
-      it "should provide matches" do
+      it "should be provided with no message" do
         lhs = "<bookstore><book></book></bookstore>"
         xml = Matcher::Xml.new(lhs)
         xml.match(lhs)
         xml.matches.should have(2).matches
-        xml.matches.values.all? {|m| m == true}.should be_true
+        xml.matches.should include("/bookstore")
+        xml.matches.values.all? {|m| m == ''}.should be_true
       end
 
     end
 
   end
 
-  context "match_result" do
-    
+  context "match results" do
+
     it "returns 'matched' for a path that was matched" do
       lhs = "<bookstore></bookstore>"
       xml = Matcher::Xml.new(lhs)
       xml.match(lhs)
       xml.result_for("/bookstore").should == "matched"
     end
-    
+
     it "returns 'mismatched' for a path that was not matched" do
       lhs = "<bookstore></bookstore>"
       xml = Matcher::Xml.new(lhs)
       xml.match("<bookstorex></bookstorex>")
       xml.result_for("/bookstore").should == "mismatched"
     end
-    
+
   end
 
 end
