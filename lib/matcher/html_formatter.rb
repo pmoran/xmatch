@@ -7,22 +7,26 @@ module Matcher
 
     TEMPLATE = File.dirname(__FILE__) + '/xmatch.html.erb'
 
-    def initialize(args = {})
+    def initialize(matcher, args = {})
+      @matcher = matcher
       @report_dir = args[:report_dir] || File.dirname(__FILE__) + '/../../reports'
       @expected_file = args[:expected_file]
     end
 
-    def format(xml)
+    def format
       FileUtils.mkdir_p(@report_dir)
-      actual_filename = create_actual_file(xml)
-      expected_filename = create_expected_file
-
-      html = ERB.new(File.read(TEMPLATE))
-      result = html.result(binding)
-      File.open(File.join(@report_dir, "xmatch.html"), 'w') { |f|  f.write(result) }
+      File.open(File.join(@report_dir, "xmatch.html"), 'w') { |f|  f.write(generate_html) }
     end
 
     private
+    
+      def generate_html
+        actual_filename = create_actual_file
+        expected_filename = create_expected_file
+        xml = @matcher        
+        html = ERB.new(File.read(TEMPLATE))
+        html.result(binding)        
+      end
     
       def create_expected_file
         # TODO: create file if expected was a string, not a filename
@@ -31,9 +35,9 @@ module Matcher
         expected_filename
       end
 
-      def create_actual_file(xml)
+      def create_actual_file
         actual_filename = File.join(@report_dir, "actual.xml")
-        File.open(actual_filename, 'w') { |f| f.write(xml.rhs)}
+        File.open(actual_filename, 'w') { |f| f.write(@matcher.rhs)}
         actual_filename
       end
 
