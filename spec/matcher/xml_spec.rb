@@ -66,6 +66,20 @@ describe Matcher::Xml do
       eos
       @xml.match(rhs).should be_true
     end
+    
+    it "should be true when a string is matched with a document" do
+      rhs = <<-eos
+      <bookstore>
+      <book category="COOKING">
+      <title lang="en">Everyday Italian</title>
+      </book>
+      
+      
+      </bookstore>
+      eos
+
+      Matcher::Xml.new(@lhs).match(Nokogiri::XML(rhs)).should be_true
+    end
 
     context "elements" do
 

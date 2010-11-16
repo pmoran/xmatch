@@ -11,9 +11,9 @@ module Matcher
       @results = {}
     end
 
-    def match(rhs)
+    def match(actual)
       @results.clear
-      @rhs = parse(rhs)
+      @rhs = parse(actual)
       compare(@lhs, @rhs)
     end
 
@@ -52,8 +52,8 @@ module Matcher
       end
 
       def parse(xml)
-        return xml if xml.instance_of?(Nokogiri::XML::Document)
-        Nokogiri::XML(xml) { |config| config.noblanks }
+        xml_as_string = xml.instance_of?(Nokogiri::XML::Document) ? xml.to_xml : xml
+        Nokogiri::XML(xml_as_string) { |config| config.noblanks }
       end
 
       def compare(lhs, rhs)
