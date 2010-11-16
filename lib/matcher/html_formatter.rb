@@ -8,8 +8,8 @@ module Matcher
     TEMPLATE = File.dirname(__FILE__) + '/xmatch.html.erb'
 
     def initialize(args = {})
-      @report_dir = args[:report_dir] || File.dirname(__FILE__) + '/../reports'
-      @expected_file = File.expand_path(args[:expected_file])
+      @report_dir = args[:report_dir] || File.dirname(__FILE__) + '/../../reports'
+      @expected_file = args[:expected_file]
     end
 
     def format(xml)
@@ -25,7 +25,10 @@ module Matcher
     private
     
       def create_expected_file
-        @expected_file
+        # TODO: create file if expected was a string, not a filename
+        expected_filename = File.join(@report_dir, "expected.xml")
+        FileUtils.cp(File.expand_path(@expected_file), expected_filename)
+        expected_filename
       end
 
       def create_actual_file(xml)
