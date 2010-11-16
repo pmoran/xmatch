@@ -7,23 +7,20 @@
 
 	<title>XMatch Report</title>
 	
-	<STYLE type="text/css">
-	   body { background-color: #fff; color: #333; }
+	<style type="text/css">
+		body { background-color: #fff; color: #333; }
 
-	body, p, ol, ul, td {
-	  font-family: verdana, arial, helvetica, sans-serif;
-	  font-size:   12px;
-	  line-height: 18px;
-	}
+		body, p, ol, ul, td {
+		  font-family: verdana, arial, helvetica, sans-serif;
+		  font-size:   12px;
+		  line-height: 18px;
+		}
 	
-	.pass {
-		background-color: #DBFFB4
-	}
-	.fail {
-		background-color: #FA5858
-	}
+		.matched {	background-color: #DBFFB4 }
+		.mismatched { background-color: #FA5858 }
+		.unmatched { background-color: yellow }
 	
-	 </STYLE>	
+	 </style>	
 	
 </head>
 
@@ -41,11 +38,10 @@
 	</tr>
 	<% xml.lhs.traverse do | elem | %>
 	  <% next if elem.xml? %>
-	  <% mismatch =  xml.mismatches[elem.path] %>
-	<tr class=<%= mismatch ? 'fail' : 'pass' %> >
+	<tr class=<%= xml.result_for(elem.path)  %> >
 		<td><%= elem.line %></td>
 		<td><%= elem.path %></td>
-  		<td><%= mismatch || '&nbsp;' %></td>
+  		<td><%= xml.mismatches[elem.path] || '&nbsp;' %></td>
 	</tr>
 	<% end %>
 </table>
