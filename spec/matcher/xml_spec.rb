@@ -283,18 +283,22 @@ describe Matcher::Xml do
 
   context "match results" do
 
-    it "returns 'matched' for a path that was matched" do
-      lhs = "<bookstore></bookstore>"
-      xml = Matcher::Xml.new(lhs)
-      xml.match(lhs)
+    it "returns 'matched' for a path that matched correctly" do
+      xml = Matcher::Xml.new("<bookstore></bookstore>")
+      xml.match("<bookstore></bookstore>")
       xml.result_for("/bookstore").should == "matched"
     end
 
-    it "returns 'mismatched' for a path that was not matched" do
-      lhs = "<bookstore></bookstore>"
-      xml = Matcher::Xml.new(lhs)
+    it "returns 'mismatched' for a path that was mismatched" do
+      xml = Matcher::Xml.new("<bookstore></bookstore>")
       xml.match("<bookstorex></bookstorex>")
       xml.result_for("/bookstore").should == "mismatched"
+    end
+    
+    it "returns 'unmatched' for a path that was not matched at all" do
+      xml = Matcher::Xml.new("<bookstore><foo></foo></bookstore>")
+      xml.match("<bookstorex></bookstorex>")
+      xml.result_for("/bookstore/foo").should == "unmatched"
     end
 
   end

@@ -23,7 +23,9 @@ module Matcher
     end
 
     def result_for(path)
-      @results[path].result ? "matched" : "mismatched"
+      return "matched" if matches[path]
+      return "mismatched" if mismatches[path]
+      "unmatched"
     end
 
     def matches
