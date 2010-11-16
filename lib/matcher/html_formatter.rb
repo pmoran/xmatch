@@ -10,7 +10,6 @@ module Matcher
     def initialize(matcher, args = {})
       @matcher = matcher
       @report_dir = args[:report_dir] || File.dirname(__FILE__) + '/../../reports'
-      @expected_file = args[:expected_file]
     end
 
     def format
@@ -29,18 +28,20 @@ module Matcher
       end
     
       def create_expected_file
-        # TODO: create file if expected was a string, not a filename
-        expected_filename = File.join(@report_dir, "expected.xml")
-        FileUtils.cp(File.expand_path(@expected_file), expected_filename)
-        expected_filename
+        write_xml("expected.xml", @matcher.lhs)
       end
 
       def create_actual_file
-        actual_filename = File.join(@report_dir, "actual.xml")
-        File.open(actual_filename, 'w') { |f| f.write(@matcher.rhs)}
-        actual_filename
+        write_xml("actual.xml", @matcher.rhs)
       end
 
+      def write_xml(name, xml)
+        File.open(File.join(@report_dir, name), 'w') { |f| f.write(xml)}
+        name
+      end
+
+      
+      
   end
 
 end
