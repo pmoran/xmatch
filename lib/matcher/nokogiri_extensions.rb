@@ -58,6 +58,7 @@ module Nokogiri
     class Attr
       def match?(other, matcher)
         if other.nil?
+          # record parent's path: nokogiri's traverse won't find attrs as children, so formatter won't report on them
           matcher.record(parent.path, false, "expected attribute missing")
           return false
         end
