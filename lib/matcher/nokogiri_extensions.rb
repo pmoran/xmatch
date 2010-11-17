@@ -62,7 +62,9 @@ module Nokogiri
           matcher.record(parent.path, false, "expected attribute missing")
           return false
         end
-        match = value == other.value
+
+        custom_matcher = matcher.custom_matchers[path]
+        match = custom_matcher ? custom_matcher.call(other) : (value == other.value)
         matcher.record(parent.path, match, "attribute '#{name}' expected '#{value}', got '#{other.value}'")
         match
       end

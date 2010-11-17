@@ -5,10 +5,11 @@ module Matcher
 
   class Xml
 
-    attr_reader :lhs, :rhs
+    attr_reader :lhs, :rhs, :custom_matchers
 
-    def initialize(lhs)
+    def initialize(lhs, custom_matchers = {})
       @lhs = parse(lhs)
+      @custom_matchers = custom_matchers
       @results = {}
     end
 

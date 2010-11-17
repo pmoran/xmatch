@@ -302,5 +302,20 @@ describe Matcher::Xml do
     end
 
   end
+  
+  context "custom matchers" do
+    
+    it "can be provided" do
+      xml = Matcher::Xml.new("<bookstore id='1'></bookstore>", {"my path" => "my predicate"})
+      xml.custom_matchers.should have(1).matcher
+    end
+    
+    it "can be used to match an attribute value" do
+      custom_matchers = { "/bookstore/@id" => lambda {|elem| elem.value == '2'} }
+      xml = Matcher::Xml.new("<bookstore id='1'></bookstore>", custom_matchers)
+      xml.match("<bookstore id='2'></bookstore>").should be_true
+    end
+    
+  end
 
 end
