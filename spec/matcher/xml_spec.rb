@@ -4,9 +4,9 @@ require 'nokogiri'
 
 describe Matcher::Xml do
 
-  def verify_mismatch(path, message)
-    @xml.match(@rhs).should be_false
-    @xml.mismatches.should have(1).mismatch
+  def verify_mismatch(path, message, count = 1)
+    match = @xml.match(@rhs)
+    @xml.mismatches.should have(count).mismatch
     @xml.mismatches[path].should == message
   end
 
@@ -95,21 +95,13 @@ describe Matcher::Xml do
       end
 
       it "should not match when rhs has a missing element" do
-        @lhs = <<-eos
-        <bookstore>
-        <book category="COOKING">
-        <title lang="en">Everyday Italian</title>
-        </book>
-        </bookstore>
-        eos
-
         @rhs = <<-eos
         <bookstore>
         <book category="COOKING">
         </book>
         </bookstore>
         eos
-        verify_mismatch("/bookstore/book/title", "expected 1 children, got 0")
+        verify_mismatch("/bookstore/book/title", "not found", 2)
       end
 
     end
@@ -124,7 +116,7 @@ describe Matcher::Xml do
         </bookx>
         </bookstore>
         eos
-        verify_mismatch("/bookstore/book", "expected element 'book', got 'bookx'")
+        verify_mismatch("/bookstore/book", "not found", 3)
       end
 
     end
@@ -139,7 +131,7 @@ describe Matcher::Xml do
         </book>
         </bookstore>
         eos
-        verify_mismatch("/bookstore/book", "expected attribute missing")
+        verify_mismatch("/bookstore/book/@category", "not found")
       end
 
       it "should not match when an attribute value doesn't match" do
@@ -150,7 +142,7 @@ describe Matcher::Xml do
         </book>
         </bookstore>
         eos
-        verify_mismatch("/bookstore/book", "attribute 'category' expected 'COOKING', got 'COOKINGx'")
+        verify_mismatch("/bookstore/book/@category", "expected 'COOKING', got 'COOKINGx'")
       end
 
       it "should not match when rhs has an extra attribute" do
@@ -233,11 +225,10 @@ describe Matcher::Xml do
       </bookstore>
       eos
       @xml.match(rhs)
-      @xml.mismatches.should have(2).mismatches
+      @xml.mismatches.should have(4).mismatches
     end
 
     it "should contain parent's path when an attribute doesn't match" do
-
       lhs = <<-eos
       <bookstore>
       <book category="COOKING">
@@ -262,18 +253,16 @@ describe Matcher::Xml do
       eos
 
       @xml = Matcher::Xml.new(lhs)
-      verify_mismatch("/bookstore/book[2]", "expected attribute missing")
+      verify_mismatch("/bookstore/book[2]/@category", "not found")
     end
 
     context 'matches' do
 
-      it "should be provided with no message" do
-        lhs = "<bookstore><book></book></bookstore>"
+      it "should contain each match" do
+        lhs = "<bookstore><book>foo</book></bookstore>"
         xml = Matcher::Xml.new(lhs)
         xml.match(lhs)
-        xml.matches.should have(2).matches
-        xml.matches.should include("/bookstore")
-        xml.matches.values.all? {|m| m == ''}.should be_true
+        xml.matches.should have(3).matches
       end
 
     end
@@ -282,26 +271,18 @@ describe Matcher::Xml do
 
   context "match results" do
     
-    it "provides all results"
-
     it "returns 'matched' for a path that matched correctly" do
       xml = Matcher::Xml.new("<bookstore></bookstore>")
       xml.match("<bookstore></bookstore>")
       xml.result_for("/bookstore").should == "matched"
     end
 
-    it "returns 'mismatched' for a path that was mismatched" do
+    it "returns 'unmatched' for a path that was not found" do
       xml = Matcher::Xml.new("<bookstore></bookstore>")
       xml.match("<bookstorex></bookstorex>")
       xml.result_for("/bookstore").should == "mismatched"
     end
     
-    it "returns 'unmatched' for a path that was not matched at all" do
-      xml = Matcher::Xml.new("<bookstore><foo></foo></bookstore>")
-      xml.match("<bookstorex></bookstorex>")
-      xml.result_for("/bookstore/foo").should == "unmatched"
-    end
-
   end
   
   context "custom matchers" do

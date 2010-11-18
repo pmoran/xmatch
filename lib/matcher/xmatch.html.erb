@@ -41,7 +41,16 @@
 		<td><%= elem.line %></td>
 		<td><%= elem.path %></td>
   		<td><%= xml.mismatches[elem.path] || '&nbsp;' %></td>
-	</tr>
+	</tr>	
+	
+		<% elem.attributes.values.each do | attr | %>
+	<tr class=<%= xml.result_for(attr.path)  %> >
+		<td><%= attr.line %></td>
+		<td><%= attr.path %></td>
+  		<td><%= xml.mismatches[attr.path] || '&nbsp;' %></td>
+	</tr>	
+		<% end %>
+	
 	<% end %>
 </table>
 

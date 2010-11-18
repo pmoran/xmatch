@@ -11,18 +11,18 @@ module Matcher
       @lhs = parse(lhs)
       @custom_matchers = custom_matchers
       @results = {}
+      @verbose = false
     end
 
-    def match(actual)
+    def match(actual, verbose = false)
+      @verbose = verbose
       @results.clear
       @rhs = parse(actual)
       compare(@lhs, @rhs)
     end
 
-    def record(lhs, rhs, result, message)
-      msg = message
-      msg << " [lhs: #{lhs.path} - rhs: #{rhs.path}]" if @verbose
-      @results[lhs.path] = OpenStruct.new(:result => result, :message => msg)
+    def record(lhs, result, message)
+      @results[lhs.path] = OpenStruct.new(:result => result, :message => message)
     end
 
     def result_for(path)
@@ -30,21 +30,17 @@ module Matcher
       return "mismatched" if mismatches[path]
       "unmatched"
     end
-
+    
     def matches
       match_info = {}
-      @results.each_pair { |k, v| match_info[k] = '' if v.result }
+      @results.each_pair { |k, v| match_info[k] = v.message if v.result }
       match_info
     end
     
     def mismatches
       match_info = {}
-      @results.each_pair { |k, v| match_info[k] = v.message unless v.result }
+      @results.each_pair { |k, v| match_info[k] = v.message if v.result == false}
       match_info
-    end
-
-    def verbose(verbose = true)
-      @verbose = verbose
     end
 
     private
@@ -56,9 +52,9 @@ module Matcher
 
       def compare(lhs, rhs)
         return false unless lhs && rhs
-        match = lhs.match?(rhs, self)
-        lhs.children.each_with_index do |child, i|
-          match = match & compare(child, rhs.children[i])
+        match = true
+        lhs.traverse do |node|
+          match = match & node.match?(rhs, self)
         end
         match
       end
