@@ -19,8 +19,10 @@ module Matcher
       compare(@lhs, @rhs)
     end
 
-    def record(path, result, message = nil)
-      @results[path] = OpenStruct.new(:result => result, :message => message)
+    def record(lhs, rhs, result, message)
+      msg = message
+      msg << " [lhs: #{lhs.path} - rhs: #{rhs.path}]" if @verbose
+      @results[lhs.path] = OpenStruct.new(:result => result, :message => msg)
     end
 
     def result_for(path)
@@ -39,6 +41,10 @@ module Matcher
       match_info = {}
       @results.each_pair { |k, v| match_info[k] = v.message unless v.result }
       match_info
+    end
+
+    def verbose(verbose = true)
+      @verbose = verbose
     end
 
     private

@@ -26,6 +26,7 @@ desc "Match two xml documents"
 task :match, :lhs, :rhs do |t, args|
   puts "** Matching #{args[:lhs]} with #{args[:rhs]}"
   xml = Matcher::Xml.new(File.read(args[:lhs]))
+  # xml.verbose
   xml.match(File.read(args[:rhs]))
   Matcher::HtmlFormatter.new(xml).format
 end
