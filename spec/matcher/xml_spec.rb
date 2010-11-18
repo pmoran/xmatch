@@ -319,7 +319,7 @@ describe Matcher::Xml do
     it "can be used on an element value" do
       custom_matchers = { "/bookstore/book/text()" => lambda {|elem| elem.content == 'bar'} }
       xml = Matcher::Xml.new("<bookstore><book>foo</book></bookstore", custom_matchers)
-      xml.match("<bookstore><book>bar</book></bookstore").should be_true
+      xml.match("<bookstore><book>bar</book></bookstore").should be_true 
     end
     
   end
