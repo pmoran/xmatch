@@ -20,6 +20,7 @@ module Matcher
         match_data << match_info_for(elem)
         elem.attributes.values.each { | attr | match_data << match_info_for(attr) }
       end
+      match_data.sort! {|a, b| a.line <=> b.line}
       
       FileUtils.mkdir_p(@report_dir)
       File.open(File.join(@report_dir, "xmatch.html"), 'w') { |f|  f.write(generate_html(match_data)) }
@@ -29,7 +30,8 @@ module Matcher
       
       def match_info_for(elem)
         result = @matcher.result_for(elem.path)
-        OpenStruct.new(:result => result, :line => elem.line, :path => elem.path, :message => @matcher.mismatches[elem.path])
+        message = result == "unmatched" ? "Unmatched" : @matcher.mismatches[elem.path]
+        OpenStruct.new(:result => result, :line => elem.line, :path => elem.path, :message => message)
       end
     
       def generate_html(data)

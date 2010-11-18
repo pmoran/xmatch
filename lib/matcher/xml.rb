@@ -4,6 +4,8 @@ require 'ostruct'
 module Matcher
 
   class Xml
+    
+    NOT_FOUND = "Not found compared document"
 
     attr_reader :lhs, :rhs, :custom_matchers
 

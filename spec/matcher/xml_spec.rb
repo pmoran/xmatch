@@ -101,7 +101,7 @@ describe Matcher::Xml do
         </book>
         </bookstore>
         eos
-        verify_mismatch("/bookstore/book/title", "not found", 2)
+        verify_mismatch("/bookstore/book/title", Matcher::Xml::NOT_FOUND, 2)
       end
 
     end
@@ -116,7 +116,7 @@ describe Matcher::Xml do
         </bookx>
         </bookstore>
         eos
-        verify_mismatch("/bookstore/book", "not found", 3)
+        verify_mismatch("/bookstore/book", Matcher::Xml::NOT_FOUND, 3)
       end
 
     end
@@ -131,7 +131,7 @@ describe Matcher::Xml do
         </book>
         </bookstore>
         eos
-        verify_mismatch("/bookstore/book/@category", "not found")
+        verify_mismatch("/bookstore/book/@category", Matcher::Xml::NOT_FOUND)
       end
 
       it "should not match when an attribute value doesn't match" do
@@ -253,7 +253,7 @@ describe Matcher::Xml do
       eos
 
       @xml = Matcher::Xml.new(lhs)
-      verify_mismatch("/bookstore/book[2]/@category", "not found")
+      verify_mismatch("/bookstore/book[2]/@category", Matcher::Xml::NOT_FOUND)
     end
 
     context 'matches' do

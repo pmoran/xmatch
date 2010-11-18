@@ -5,10 +5,10 @@ module Nokogiri
   module XML
 
     class Node
-
+      
       def matching(other, matcher)
         other_elem = other.at_xpath(path)
-        matcher.record(self, false, "not found") unless other_elem
+        matcher.record(self, false, Matcher::Xml::NOT_FOUND) unless other_elem
         other_elem
       end
     end
