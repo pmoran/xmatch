@@ -35,22 +35,12 @@
 		<th>Path</th>
 		<th>Mismatch</th>
 	</tr>
-	<% xml.lhs.traverse do | elem | %>
-	  <% next if elem.xml? %>
-	<tr class=<%= xml.result_for(elem.path)  %> >
-		<td><%= elem.line %></td>
-		<td><%= elem.path %></td>
-  		<td><%= xml.mismatches[elem.path] || '&nbsp;' %></td>
-	</tr>	
-	
-		<% elem.attributes.values.each do | attr | %>
-	<tr class=<%= xml.result_for(attr.path)  %> >
-		<td><%= attr.line %></td>
-		<td><%= attr.path %></td>
-  		<td><%= xml.mismatches[attr.path] || '&nbsp;' %></td>
-	</tr>	
-		<% end %>
-	
+	<% match_info.each do | match | %>
+	<tr class=<%= match.result  %> >
+		<td><%= match.line %></td>
+		<td><%= match.path %></td>
+  		<td><%= match.message || '&nbsp;' %></td>
+	</tr>		
 	<% end %>
 </table>
 

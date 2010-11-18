@@ -1,5 +1,6 @@
 require 'erb'
 require 'fileutils'
+require 'ostruct'
 
 module Matcher
 
@@ -13,16 +14,29 @@ module Matcher
     end
 
     def format
+      match_data = []
+      @matcher.lhs.traverse do |elem|
+        next if elem.xml?
+        match_data << match_info_for(elem)
+        elem.attributes.values.each { | attr | match_data << match_info_for(attr) }
+      end
+      
       FileUtils.mkdir_p(@report_dir)
-      File.open(File.join(@report_dir, "xmatch.html"), 'w') { |f|  f.write(generate_html) }
+      File.open(File.join(@report_dir, "xmatch.html"), 'w') { |f|  f.write(generate_html(match_data)) }
     end
 
     private
+      
+      def match_info_for(elem)
+        result = @matcher.result_for(elem.path)
+        OpenStruct.new(:result => result, :line => elem.line, :path => elem.path, :message => @matcher.mismatches[elem.path])
+      end
     
-      def generate_html
+      def generate_html(data)
         actual_filename = create_actual_file
         expected_filename = create_expected_file
         xml = @matcher        
+        match_info = data
         html = ERB.new(File.read(TEMPLATE))
         html.result(binding)        
       end
