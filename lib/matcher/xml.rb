@@ -11,11 +11,9 @@ module Matcher
       @lhs = parse(lhs)
       @custom_matchers = custom_matchers
       @results = {}
-      @verbose = false
     end
 
-    def match(actual, verbose = false)
-      @verbose = verbose
+    def match(actual)
       @results.clear
       @rhs = parse(actual)
       compare(@lhs, @rhs)
@@ -32,18 +30,20 @@ module Matcher
     end
     
     def matches
-      match_info = {}
-      @results.each_pair { |k, v| match_info[k] = v.message if v.result }
-      match_info
+      results_that_are(true)
     end
     
     def mismatches
-      match_info = {}
-      @results.each_pair { |k, v| match_info[k] = v.message if v.result == false}
-      match_info
+      results_that_are(false)
     end
 
     private
+    
+      def results_that_are(value)
+        match_info = {}
+        @results.each_pair { |path, info| match_info[path] = info.message if info.result == value}
+        match_info
+      end
 
       def parse(xml)
         xml_as_string = xml.instance_of?(Nokogiri::XML::Document) ? xml.to_xml : xml
@@ -53,9 +53,7 @@ module Matcher
       def compare(lhs, rhs)
         return false unless lhs && rhs
         match = true
-        lhs.traverse do |node|
-          match = match & node.match?(rhs, self)
-        end
+        lhs.traverse { |node| match = match & node.match?(rhs, self) }
         match
       end
 
