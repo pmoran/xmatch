@@ -310,10 +310,16 @@ describe Matcher::Xml do
       xml.custom_matchers.should have(1).matcher
     end
     
-    it "can be used to match an attribute value" do
+    it "can be used on an attribute value" do
       custom_matchers = { "/bookstore/@id" => lambda {|elem| elem.value == '2'} }
       xml = Matcher::Xml.new("<bookstore id='1'></bookstore>", custom_matchers)
       xml.match("<bookstore id='2'></bookstore>").should be_true
+    end
+    
+    it "can be used on an element value" do
+      custom_matchers = { "/bookstore/book/text()" => lambda {|elem| elem.content == 'bar'} }
+      xml = Matcher::Xml.new("<bookstore><book>foo</book></bookstore", custom_matchers)
+      xml.match("<bookstore><book>bar</book></bookstore").should be_true
     end
     
   end

@@ -49,7 +49,8 @@ module Nokogiri
 
     class Text
       def match?(other, matcher)
-        match = content == other.content
+        custom_matcher = matcher.custom_matchers[path]
+        match = custom_matcher ? custom_matcher.call(other) : (content == other.content)        
         matcher.record(path, match, "expected '#{content}', got '#{other.content}'")
         match
       end
