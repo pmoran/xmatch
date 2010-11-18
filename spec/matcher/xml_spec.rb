@@ -1,7 +1,6 @@
 require File.expand_path(File.dirname(__FILE__) + '/../spec_helper')
 
 require 'nokogiri'
-require 'matcher/xml'
 
 describe Matcher::Xml do
 
@@ -282,6 +281,8 @@ describe Matcher::Xml do
   end
 
   context "match results" do
+    
+    it "provides all results"
 
     it "returns 'matched' for a path that matched correctly" do
       xml = Matcher::Xml.new("<bookstore></bookstore>")

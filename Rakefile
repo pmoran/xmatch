@@ -3,7 +3,7 @@ require "rubygems"
 require "rake"
 require "rake/clean"
 
-require 'matcher'
+require 'xmatch'
 
 require "spec/rake/spectask"
 
