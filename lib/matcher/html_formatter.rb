@@ -9,7 +9,7 @@ module Matcher
 
     def initialize(matcher, args = {})
       @matcher = matcher
-      @report_dir = args[:report_dir] || File.dirname(__FILE__) + '/../../reports'
+      @report_dir = args[:report_dir] || '/tmp/xmatch'
     end
 
     def format
