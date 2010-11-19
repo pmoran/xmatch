@@ -26,7 +26,9 @@
 <body>
 
 <h2>XMatch Report</h2>
-<p><%= xml.mismatches.size %> mismatches found</p>
+<p><%= xml.mismatches.size %> mismatches found from  <%= xml.results.size %> elements.<br/>
+Expected xml document is <b><%= completedness %>%</b> 'matched'.
+</p>
 <p><a href='<%=expected_filename%>'>Expected xml</a> | <a href='<%=actual_filename%>'>Actual xml</a></p>
 
 <table border="0" cellspacing="2" cellpadding="5">

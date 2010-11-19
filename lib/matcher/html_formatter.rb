@@ -11,6 +11,7 @@ module Matcher
     def initialize(matcher, args = {})
       @matcher = matcher
       @report_dir = args[:report_dir] || '/tmp/xmatch'
+      @prefix = args[:prefix]
     end
 
     def format
@@ -23,7 +24,9 @@ module Matcher
       match_data.sort! {|a, b| a.line <=> b.line}
       
       FileUtils.mkdir_p(@report_dir)
-      File.open(File.join(@report_dir, "xmatch.html"), 'w') { |f|  f.write(generate_html(match_data)) }
+      filename = "xmatch.html"
+      filename = "#{@prefix}-xmatch.html" if @prefix
+      File.open(File.join(@report_dir, filename), 'w') { |f|  f.write(generate_html(match_data)) }
     end
 
     private
@@ -37,26 +40,31 @@ module Matcher
       def generate_html(data)
         actual_filename = create_actual_file
         expected_filename = create_expected_file
-        xml = @matcher        
+        xml = @matcher  
+        completedness = compute_completedness
         match_info = data
         html = ERB.new(File.read(TEMPLATE))
         html.result(binding)        
       end
     
+      def compute_completedness
+        (@matcher.matches.size.to_f / @matcher.results.size.to_f * 100).to_i
+      end
+    
       def create_expected_file
-        write_xml("expected.xml", @matcher.lhs)
+        write_xml("expected", @matcher.lhs)
       end
 
       def create_actual_file
-        write_xml("actual.xml", @matcher.rhs)
+        write_xml("actual", @matcher.rhs)
       end
 
       def write_xml(name, xml)
-        File.open(File.join(@report_dir, name), 'w') { |f| f.write(xml)}
-        name
+        file_name = "#{name}-#{Time.now.to_i}.xml"
+        file_name = "#{@prefix}-#{file_name}" if @prefix 
+        File.open(File.join(@report_dir, file_name), 'w') { |f| f.write(xml)}
+        file_name
       end
-
-      
       
   end
 

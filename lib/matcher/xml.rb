@@ -5,9 +5,9 @@ module Matcher
 
   class Xml
     
-    NOT_FOUND = "Not found compared document"
+    NOT_FOUND = "Not found in compared document"
 
-    attr_reader :lhs, :rhs, :custom_matchers
+    attr_reader :lhs, :rhs, :custom_matchers, :results
 
     def initialize(lhs, custom_matchers = {})
       @lhs = parse(lhs)

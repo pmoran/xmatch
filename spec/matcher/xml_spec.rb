@@ -203,6 +203,10 @@ describe Matcher::Xml do
       Matcher::Xml.new(@lhs).mismatches.should be_empty
     end
 
+    it "provides all results" do
+      Matcher::Xml.new(@lhs).results.should be_empty
+    end
+    
     it "should be reset when rematching" do
       rhs = <<-eos
       <bookstore>
