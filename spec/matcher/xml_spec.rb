@@ -307,6 +307,14 @@ describe Matcher::Xml do
       xml = Matcher::Xml.new("<bookstore><book>foo</book></bookstore", custom_matchers)
       xml.match("<bookstore><book>bar</book></bookstore").should be_true 
     end
+
+    it "supports regex matching" do
+      custom_matchers = { "/bookstore/book/text()" => lambda {|elem| elem.content =~ /bar/} }
+      xml = Matcher::Xml.new("<bookstore><book>foo</book></bookstore", custom_matchers)
+      xml.match("<bookstore><book>bar</book></bookstore").should be_true 
+      xml.mismatches.should be_empty
+      xml.matches.should have(3).matches
+    end
     
   end
 

@@ -22,7 +22,9 @@ module Matcher
     end
 
     def record(lhs, result, message)
-      @results[lhs.path] = OpenStruct.new(:result => result, :message => message)
+      # support 0 as true (for regex matches)
+      r = !result || result.nil? ? false : true
+      @results[lhs.path] = OpenStruct.new(:result => r, :message => message)
     end
 
     def result_for(path)

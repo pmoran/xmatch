@@ -27,9 +27,9 @@ A matcher provides access to the match information by xpath values:
 Custom matchers
 ---------------
 The actual values of some xml elements are hard to know in advance (timestamps and ids being typical examples). XMatch allows custom matchers to be applied
-to provide a good guess at a match in advance of the match being run. Custom matchers are Ruby Procs that take the element to match as an argument. They are  identified by the xpath of the element they should be applied to.
+to provide a good guess at a match in advance of the match being run. Custom matchers are predicates provided as Ruby Procs, identified by the xpath of the element they should be applied to.
 
-	custom_matchers = { "/bookstore/@id" => lambda {|elem| elem.value =~ /\d+/} }
+	custom_matchers = { "/bookstore/@id" => lambda {|elem| elem.value.match(/\d+/).size > 0 }
 	xml = Matcher::Xml.new("<bookstore id='1'></bookstore>", custom_matchers)
 	xml.match("<bookstore id='2'></bookstore>") # ==> true
 
