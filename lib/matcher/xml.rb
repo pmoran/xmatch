@@ -5,7 +5,8 @@ module Matcher
 
   class Xml
     
-    NOT_FOUND = "Not found in compared document"
+    NOT_FOUND = "[Not found]"
+    EXISTENCE = "[Existence]"
 
     attr_reader :lhs, :rhs, :custom_matchers, :results
 
@@ -21,10 +22,10 @@ module Matcher
       compare(@lhs, @rhs)
     end
 
-    def record(lhs, result, message)
+    def record(path, result, expected, actual)
       # support 0 as true (for regex matches)
       r = !result || result.nil? ? false : true
-      @results[lhs.path] = OpenStruct.new(:result => r, :message => message)
+      @results[path] = OpenStruct.new(:result => r, :expected => expected, :actual => actual)
     end
 
     def result_for(path)
@@ -45,7 +46,7 @@ module Matcher
     
       def results_that_are(value)
         match_info = {}
-        @results.each_pair { |path, info| match_info[path] = info.message if info.result == value}
+        @results.each { |path, info| match_info[path] = info if info.result == value}
         match_info
       end
 

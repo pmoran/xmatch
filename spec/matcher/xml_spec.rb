@@ -4,10 +4,12 @@ require 'nokogiri'
 
 describe Matcher::Xml do
 
-  def verify_mismatch(path, message, count = 1)
+  def verify_mismatch(path, expected, actual, count = 1)
     match = @xml.match(@rhs)
     @xml.mismatches.should have(count).mismatch
-    @xml.mismatches[path].should == message
+    @xml.mismatches[path].result.should be_false
+    @xml.mismatches[path].expected.should == expected.to_s
+    @xml.mismatches[path].actual.should == actual
   end
 
   context "attributes" do
@@ -91,7 +93,7 @@ describe Matcher::Xml do
         <book></book>
         </bookstore>
         eos
-        verify_mismatch("/bookstore", "expected 1 children, got 2")
+        verify_mismatch("/bookstore", "1 children", "2 children")
       end
 
       it "should not match when rhs has a missing element" do
@@ -101,7 +103,7 @@ describe Matcher::Xml do
         </book>
         </bookstore>
         eos
-        verify_mismatch("/bookstore/book/title", Matcher::Xml::NOT_FOUND, 2)
+        verify_mismatch("/bookstore/book/title", Matcher::Xml::EXISTENCE, Matcher::Xml::NOT_FOUND, 2)
       end
 
     end
@@ -116,7 +118,7 @@ describe Matcher::Xml do
         </bookx>
         </bookstore>
         eos
-        verify_mismatch("/bookstore/book", Matcher::Xml::NOT_FOUND, 3)
+        verify_mismatch("/bookstore/book", Matcher::Xml::EXISTENCE, Matcher::Xml::NOT_FOUND, 3)
       end
 
     end
@@ -131,7 +133,7 @@ describe Matcher::Xml do
         </book>
         </bookstore>
         eos
-        verify_mismatch("/bookstore/book/@category", Matcher::Xml::NOT_FOUND)
+        verify_mismatch("/bookstore/book/@category", Matcher::Xml::EXISTENCE, Matcher::Xml::NOT_FOUND)
       end
 
       it "should not match when an attribute value doesn't match" do
@@ -142,7 +144,7 @@ describe Matcher::Xml do
         </book>
         </bookstore>
         eos
-        verify_mismatch("/bookstore/book/@category", "expected 'COOKING', got 'COOKINGx'")
+        verify_mismatch("/bookstore/book/@category", 'COOKING', "COOKINGx")
       end
 
       it "should not match when rhs has an extra attribute" do
@@ -153,7 +155,7 @@ describe Matcher::Xml do
         </book>
         </bookstore>
         eos
-        verify_mismatch("/bookstore/book", "expected 1 attributes, got 2")
+        verify_mismatch("/bookstore/book", "1 attributes", "2 attributes")
       end
 
       it "should not match when rhs has less attributes" do
@@ -164,7 +166,7 @@ describe Matcher::Xml do
         </book>
         </bookstore>
         eos
-        verify_mismatch("/bookstore/book/title", "expected 1 attributes, got 0")
+        verify_mismatch("/bookstore/book/title", "1 attributes", "0 attributes")
       end
 
       it "should not match when rhs has more attributes" do
@@ -175,7 +177,7 @@ describe Matcher::Xml do
         </book>
         </bookstore>
         eos
-        verify_mismatch("/bookstore/book/title", "expected 1 attributes, got 2")
+        verify_mismatch("/bookstore/book/title", "1 attributes", "2 attributes")
       end
 
     end
@@ -190,7 +192,7 @@ describe Matcher::Xml do
         </book>
         </bookstore>
         eos
-        verify_mismatch("/bookstore/book/title/text()", "expected 'Everyday Italian', got 'Everyday Italianx'")
+        verify_mismatch("/bookstore/book/title/text()", "Everyday Italian", "Everyday Italianx")
       end
 
     end
@@ -257,7 +259,7 @@ describe Matcher::Xml do
       eos
 
       @xml = Matcher::Xml.new(lhs)
-      verify_mismatch("/bookstore/book[2]/@category", Matcher::Xml::NOT_FOUND)
+      verify_mismatch("/bookstore/book[2]/@category", Matcher::Xml::EXISTENCE, Matcher::Xml::NOT_FOUND)
     end
 
     context 'matches' do
@@ -267,6 +269,15 @@ describe Matcher::Xml do
         xml = Matcher::Xml.new(lhs)
         xml.match(lhs)
         xml.matches.should have(3).matches
+      end
+      
+      it "should have expected and actual results" do
+        lhs = "<bookstore><book>foo</book></bookstore>"
+        xml = Matcher::Xml.new(lhs)
+        xml.match(lhs).should be_true
+        match_info = xml.matches["/bookstore"]
+        match_info.expected.should == "1 children"
+        match_info.actual.should == "1 children"
       end
 
     end

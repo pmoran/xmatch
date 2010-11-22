@@ -8,7 +8,7 @@ module Nokogiri
       
       def matching(other, matcher)
         other_elem = other.at_xpath(path)
-        matcher.record(self, false, Matcher::Xml::NOT_FOUND) unless other_elem
+        matcher.record(self.path, false, Matcher::Xml::EXISTENCE, Matcher::Xml::NOT_FOUND) unless other_elem
         other_elem
       end
     end
@@ -34,14 +34,14 @@ module Nokogiri
 
         def children_match?(other)
           match = children.size == other.children.size
-          @matcher.record(self, match, "expected #{children.size} children, got #{other.children.size}")
+          @matcher.record(self.path, match, "#{children.size} children", "#{other.children.size} children")
           match
         end
 
         def attributes_match?(other)
           match = attributes.size == other.attributes.size
           unless match
-            @matcher.record(self, match, "expected #{attributes.size} attributes, got #{other.attributes.size}")
+            @matcher.record(self.path, match, "#{attributes.size} attributes", "#{other.attributes.size} attributes")
             return false
           end
 
@@ -60,7 +60,7 @@ module Nokogiri
 
         custom_matcher = matcher.custom_matchers[path]
         match = custom_matcher ? custom_matcher.call(other_elem) : (content == other_elem.content)
-        @matcher.record(self, match, "expected '#{content}', got '#{other_elem.content}'")
+        @matcher.record(self.path, match, content, other_elem.content)
         match
       end
 
@@ -74,7 +74,7 @@ module Nokogiri
 
         custom_matcher = matcher.custom_matchers[path]
         match = custom_matcher ? custom_matcher.call(other_elem) : (value == other_elem.value)
-        matcher.record(self, match, "expected '#{value}', got '#{other_elem.value}'")
+        matcher.record(self.path, match, value, other_elem.value)
         match
       end
 
