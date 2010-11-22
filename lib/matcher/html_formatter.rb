@@ -36,8 +36,8 @@ module Matcher
         OpenStruct.new(:result => result,
                        :line => elem.line,
                        :path => elem.path,
-                       :expected => info.expected,
-                       :actual => info.actual)
+                       :expected => info ? info.expected : Matcher::Xml::EXISTENCE,
+                       :actual => info ? info.actual : Matcher::Xml::UNMATCHED)
       end
 
       def generate_html(data)

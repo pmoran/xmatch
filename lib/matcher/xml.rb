@@ -7,6 +7,7 @@ module Matcher
     
     NOT_FOUND = "[Not found]"
     EXISTENCE = "[Existence]"
+    UNMATCHED = "[Unmatched]"
 
     attr_reader :lhs, :rhs, :custom_matchers, :results
 
