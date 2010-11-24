@@ -59,7 +59,7 @@ module Nokogiri
         return false unless other_elem
 
         custom_matcher = matcher.custom_matchers[path]
-        match = custom_matcher ? custom_matcher.call(other_elem) : (content == other_elem.content)
+        match = custom_matcher ? custom_matcher.call(other_elem.content) : (content == other_elem.content)
         @matcher.record(self.path, match, content, other_elem.content)
         match
       end
@@ -73,7 +73,7 @@ module Nokogiri
         return false unless other_elem
 
         custom_matcher = matcher.custom_matchers[path]
-        match = custom_matcher ? custom_matcher.call(other_elem) : (value == other_elem.value)
+        match = custom_matcher ? custom_matcher.call(other_elem.value) : (value == other_elem.value)
         matcher.record(self.path, match, value, other_elem.value)
         match
       end

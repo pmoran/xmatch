@@ -17,6 +17,10 @@ module Matcher
       @results = {}
     end
 
+    def match_on(path, &blk)
+      @custom_matchers[path] = blk
+    end
+
     def match(actual)
       @results.clear
       @rhs = parse(actual)
@@ -26,7 +30,8 @@ module Matcher
     def record(path, result, expected, actual)
       # support 0 as true (for regex matches)
       r = !result || result.nil? ? false : true
-      @results[path] = OpenStruct.new(:result => r, :expected => expected, :actual => actual)
+      was_custom_matched = @custom_matchers[path] ? true : false
+      @results[path] = OpenStruct.new(:result => r, :expected => expected, :actual => actual, :was_custom_matched => was_custom_matched)
     end
 
     def result_for(path)

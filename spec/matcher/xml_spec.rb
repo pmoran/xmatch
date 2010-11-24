@@ -308,20 +308,28 @@ describe Matcher::Xml do
     end
     
     it "can be used on an attribute value" do
-      custom_matchers = { "/bookstore/@id" => lambda {|elem| elem.value == '2'} }
+      custom_matchers = { "/bookstore/@id" => lambda {|actual| actual == '2'} }
       xml = Matcher::Xml.new("<bookstore id='1'></bookstore>", custom_matchers)
       xml.match("<bookstore id='2'></bookstore>").should be_true
     end
     
     it "can be used on an element value" do
-      custom_matchers = { "/bookstore/book/text()" => lambda {|elem| elem.content == 'bar'} }
+      custom_matchers = { "/bookstore/book/text()" => lambda {|actual| actual == 'bar'} }
       xml = Matcher::Xml.new("<bookstore><book>foo</book></bookstore", custom_matchers)
       xml.match("<bookstore><book>bar</book></bookstore").should be_true 
     end
 
     it "supports regex style matching" do
-      custom_matchers = { "/bookstore/book/text()" => lambda {|elem| elem.content =~ /bar/} }
+      custom_matchers = { "/bookstore/book/text()" => lambda {|actual| actual =~ /bar/} }
       xml = Matcher::Xml.new("<bookstore><book>foo</book></bookstore", custom_matchers)
+      xml.match("<bookstore><book>bar</book></bookstore").should be_true 
+      xml.mismatches.should be_empty
+      xml.matches.should have(3).matches
+    end
+    
+    it "can be matched on" do
+      xml = Matcher::Xml.new("<bookstore><book>foo</book></bookstore")
+      xml.match_on("/bookstore/book/text()") { |actual| actual =~ /bar/ }
       xml.match("<bookstore><book>bar</book></bookstore").should be_true 
       xml.mismatches.should be_empty
       xml.matches.should have(3).matches
