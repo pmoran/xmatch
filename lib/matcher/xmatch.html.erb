@@ -42,7 +42,11 @@ Expected xml document is <b><%= completedness %>%</b> 'matched'.
 	<tr class=<%= match.result  %> >
 		<td><%= match.line %></td>
 		<td><%= match.path %></td>
+	<% if match.custom_matched == true%>
+    	<td><i>(something like) <%= match.expected %></i></td>
+	<% else %>
   		<td><%= match.expected %></td>
+	<% end %>
   		<td><%= match.actual %></td>
 	</tr>		
 	<% end %>

@@ -37,7 +37,8 @@ module Matcher
                        :line => elem.line,
                        :path => elem.path,
                        :expected => info ? info.expected : Matcher::Xml::EXISTENCE,
-                       :actual => info ? info.actual : Matcher::Xml::UNMATCHED)
+                       :actual => info ? info.actual : Matcher::Xml::UNMATCHED,
+                       :custom_matched => info ? info.was_custom_matched : false)
       end
 
       def generate_html(data)

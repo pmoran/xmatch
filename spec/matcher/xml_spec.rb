@@ -334,6 +334,14 @@ describe Matcher::Xml do
       xml.mismatches.should be_empty
       xml.matches.should have(3).matches
     end
+
+    it "tells if a custom matcher was used" do
+      xml = Matcher::Xml.new("<bookstore><book>foo</book></bookstore")
+      xml.match_on("/bookstore/book/text()") { |actual| actual =~ /bar/ }
+      xml.match("<bookstore><book>bar</book></bookstore").should be_true 
+      xml.matches["/bookstore/book/text()"].was_custom_matched.should be_true
+      xml.matches["/bookstore/book"].was_custom_matched.should be_false
+    end
     
   end
 
