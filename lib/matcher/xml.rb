@@ -20,6 +20,8 @@ module Matcher
     def match_on(path, &blk)
       @custom_matchers[path] = blk
     end
+    
+    alias_method :on, :match_on
 
     def match(actual)
       @results.clear

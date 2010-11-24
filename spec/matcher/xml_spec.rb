@@ -335,6 +335,14 @@ describe Matcher::Xml do
       xml.matches.should have(3).matches
     end
 
+    it "supports 'on'" do
+      matcher = Matcher::Xml.new("<bookstore><book>foo</book></bookstore")
+      matcher.on("/bookstore/book/text()") { |actual| actual =~ /bar/ }
+      matcher.match("<bookstore><book>bar</book></bookstore").should be_true 
+      matcher.mismatches.should be_empty
+      matcher.matches.should have(3).matches      
+    end
+
     it "tells if a custom matcher was used" do
       xml = Matcher::Xml.new("<bookstore><book>foo</book></bookstore")
       xml.match_on("/bookstore/book/text()") { |actual| actual =~ /bar/ }
