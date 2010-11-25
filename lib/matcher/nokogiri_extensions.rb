@@ -5,28 +5,32 @@ module Nokogiri
   module XML
 
     class Node
-      
-      def matching(other, matcher)
-        other_elem = other.at_xpath(path)
-        matcher.record(self.path, false, Matcher::Xml::EXISTENCE, Matcher::Xml::NOT_FOUND) unless other_elem
-        other_elem
-      end
-    end
-
-    class Document
 
       def match?(other, matcher)
-        matching(other, matcher) ? true : false
+        @matcher = matcher
+        matching(other) ? true : false
       end
 
+      def matching(other)
+        other_elem = other.at_xpath(path)
+        @matcher.record(self.path, false, Matcher::Xml::EXISTENCE, Matcher::Xml::NOT_FOUND) unless other_elem
+        other_elem
+      end
+      
+      def evaluate(path, expected, actual)
+        custom_matcher = @matcher.custom_matchers[path]
+        match = custom_matcher ? custom_matcher.call(actual) : expected == actual
+        @matcher.record(self.path, match, expected, actual)
+        match
+      end
+      
     end
 
     class Element
 
       def match?(other, matcher)
         @matcher = matcher
-        other_elem = matching(other, matcher)
-        return false unless other_elem
+        return false unless other_elem = matching(other)
         children_match?(other_elem) & attributes_match?(other_elem)
       end
 
@@ -54,13 +58,9 @@ module Nokogiri
     class Text
 
       def match?(other, matcher)
-        other_elem = matching(other, matcher)
-        return false unless other_elem
-
-        custom_matcher = matcher.custom_matchers[path]
-        match = custom_matcher ? custom_matcher.call(other_elem.content) : (content == other_elem.content)
-        matcher.record(self.path, match, content, other_elem.content)
-        match
+        @matcher = matcher
+        return false unless other_elem = matching(other)
+        evaluate(path, content, other_elem.content)
       end
 
     end
@@ -68,13 +68,9 @@ module Nokogiri
     class Attr
 
       def match?(other, matcher)
-        other_elem = matching(other, matcher)
-        return false unless other_elem
-
-        custom_matcher = matcher.custom_matchers[path]
-        match = custom_matcher ? custom_matcher.call(other_elem.value) : (value == other_elem.value)
-        matcher.record(self.path, match, value, other_elem.value)
-        match
+        @matcher = matcher
+        return false unless other_elem = matching(other)
+        evaluate(path, value, other_elem.value)
       end
 
     end
