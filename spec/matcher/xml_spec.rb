@@ -7,12 +7,13 @@ describe Matcher::Xml do
   def verify_mismatch(path, expected, actual, count = 1)
     match = @xml.match(@rhs)
     @xml.mismatches.should have(count).mismatch
-    @xml.mismatches[path].result.should be_false
-    @xml.mismatches[path].expected.should == expected.to_s
-    @xml.mismatches[path].actual.should == actual
+    mismatch = @xml.mismatches[path]
+    mismatch.result.should be_false
+    mismatch.expected.should == expected.to_s
+    mismatch.actual.should == actual
   end
 
-  context "attributes" do
+  context "when being created" do
 
     before(:each) do
       @xml = Matcher::Xml.new("<foo></foo>")
@@ -33,25 +34,26 @@ describe Matcher::Xml do
 
   end
 
-  before(:each) do
-    @lhs = <<-eos
-    <bookstore>
-    <book category="COOKING">
-    <title lang="en">Everyday Italian</title>
-    </book>
-    </bookstore>
-    eos
-    @xml = Matcher::Xml.new(@lhs)
-  end
 
   context "matching" do
+
+    before(:each) do
+      @lhs = <<-eos
+      <bookstore>
+      <book category="COOKING">
+      <title lang="en">Everyday Italian</title>
+      </book>
+      </bookstore>
+      eos
+      @xml = Matcher::Xml.new(@lhs)
+    end
 
     it "should be true when documents match" do
       Matcher::Xml.new(@lhs).match(@lhs.clone).should be_true
     end
 
     it "should provide empty mismatches on match" do
-      @xml.match(@lhs.clone).should be_true
+      @xml.match(@lhs.clone)
       @xml.mismatches.should be_empty
     end
 
@@ -68,7 +70,7 @@ describe Matcher::Xml do
       @xml.match(rhs).should be_true
     end
 
-    it "should be true when a string is matched with a document" do
+    it "should be true when a string is matched with a parsed document" do
       rhs = <<-eos
       <bookstore>
       <book category="COOKING">
@@ -82,7 +84,7 @@ describe Matcher::Xml do
       Matcher::Xml.new(@lhs).match(Nokogiri::XML(rhs)).should be_true
     end
 
-    context "elements" do
+    context "against elements" do
 
       it "should not match when rhs has an extra element" do
         @rhs = <<-eos
@@ -108,7 +110,7 @@ describe Matcher::Xml do
 
     end
 
-    context "names" do
+    context "against element names" do
 
       it "should not match when rhs has a different element name" do
         @rhs = <<-eos
@@ -123,7 +125,7 @@ describe Matcher::Xml do
 
     end
 
-    context "attributes" do
+    context "against attributes" do
 
       it "should not match when an attribute names don't match" do
         @rhs = <<-eos
@@ -182,9 +184,9 @@ describe Matcher::Xml do
 
     end
 
-    context "contents" do
+    context "against text element contents" do
 
-      it "should not match when inner text contents don't match" do
+      it "should not match when contents don't match" do
         @rhs = <<-eos
         <bookstore>
         <book category="COOKING">
@@ -196,19 +198,30 @@ describe Matcher::Xml do
       end
 
     end
+    
+    it "should provides all results empty by default" do
+      Matcher::Xml.new(@lhs).results.should be_empty
+    end
 
   end
 
-  context "mismatches" do
+  context "with mismatches" do
+
+    before(:each) do
+      @lhs = <<-eos
+      <bookstore>
+      <book category="COOKING">
+      <title lang="en">Everyday Italian</title>
+      </book>
+      </bookstore>
+      eos
+      @xml = Matcher::Xml.new(@lhs)
+    end
 
     it "should be empty to start with" do
       Matcher::Xml.new(@lhs).mismatches.should be_empty
     end
 
-    it "provides all results" do
-      Matcher::Xml.new(@lhs).results.should be_empty
-    end
-    
     it "should be reset when rematching" do
       rhs = <<-eos
       <bookstore>
@@ -237,9 +250,6 @@ describe Matcher::Xml do
     it "should contain parent's path when an attribute doesn't match" do
       lhs = <<-eos
       <bookstore>
-      <book category="COOKING">
-      <title lang="en">Everyday Italian</title>
-      </book>
       <book category="FOO">
       <title lang="en">Everyday French</title>
       </book>
@@ -249,9 +259,6 @@ describe Matcher::Xml do
 
       @rhs = <<-eos
       <bookstore>
-      <book category="COOKING">
-      <title lang="en">Everyday Italian</title>
-      </book>
       <book foo="bar">
       <title lang="en">Everyday French</title>
       </book>
@@ -259,98 +266,93 @@ describe Matcher::Xml do
       eos
 
       @xml = Matcher::Xml.new(lhs)
-      verify_mismatch("/bookstore/book[2]/@category", Matcher::Xml::EXISTENCE, Matcher::Xml::NOT_FOUND)
+      verify_mismatch("/bookstore/book/@category", Matcher::Xml::EXISTENCE, Matcher::Xml::NOT_FOUND)
+    end
+  end
+
+  context 'with matches' do
+
+    before(:each) do
+      lhs = "<bookstore><book>foo</book></bookstore>"
+      @xml = Matcher::Xml.new(lhs)
+      @xml.match(lhs).should be_true
     end
 
-    context 'matches' do
+    it "should contain each match" do
+      @xml.matches.should have(3).matches
+    end
 
-      it "should contain each match" do
-        lhs = "<bookstore><book>foo</book></bookstore>"
-        xml = Matcher::Xml.new(lhs)
-        xml.match(lhs)
-        xml.matches.should have(3).matches
-      end
-      
-      it "should have expected and actual results" do
-        lhs = "<bookstore><book>foo</book></bookstore>"
-        xml = Matcher::Xml.new(lhs)
-        xml.match(lhs).should be_true
-        match_info = xml.matches["/bookstore"]
-        match_info.expected.should == "1 children"
-        match_info.actual.should == "1 children"
-      end
-
+    it "should have expected and actual results" do
+      match_info = @xml.matches["/bookstore"]
+      match_info.expected.should == "1 children"
+      match_info.actual.should == "1 children"
     end
 
   end
 
-  context "match results" do
-    
+  context "retrieving match results" do
+
+    before(:each) do
+      @xml = Matcher::Xml.new("<bookstore></bookstore>")
+    end
+
     it "returns 'matched' for a path that matched correctly" do
-      xml = Matcher::Xml.new("<bookstore></bookstore>")
-      xml.match("<bookstore></bookstore>")
-      xml.result_for("/bookstore").should == "matched"
+      @xml.match("<bookstore></bookstore>")
+      @xml.result_for("/bookstore").should == "matched"
     end
 
     it "returns 'unmatched' for a path that was not found" do
-      xml = Matcher::Xml.new("<bookstore></bookstore>")
-      xml.match("<bookstorex></bookstorex>")
-      xml.result_for("/bookstore").should == "mismatched"
+      @xml.match("<bookstorex></bookstorex>")
+      @xml.result_for("/bookstore").should == "mismatched"
     end
-    
+
   end
-  
-  context "custom matchers" do
-    
-    it "can be provided" do
+
+  context "with custom matchers" do
+
+    it "can be provided when created" do
       xml = Matcher::Xml.new("<bookstore id='1'></bookstore>", {"my path" => "my predicate"})
       xml.custom_matchers.should have(1).matcher
     end
-    
+
     it "can be used on an attribute value" do
       custom_matchers = { "/bookstore/@id" => lambda {|actual| actual == '2'} }
       xml = Matcher::Xml.new("<bookstore id='1'></bookstore>", custom_matchers)
       xml.match("<bookstore id='2'></bookstore>").should be_true
     end
-    
+
     it "can be used on an element value" do
       custom_matchers = { "/bookstore/book/text()" => lambda {|actual| actual == 'bar'} }
       xml = Matcher::Xml.new("<bookstore><book>foo</book></bookstore", custom_matchers)
-      xml.match("<bookstore><book>bar</book></bookstore").should be_true 
+      xml.match("<bookstore><book>bar</book></bookstore").should be_true
     end
 
-    it "supports regex style matching" do
+    it "support regex matching" do
       custom_matchers = { "/bookstore/book/text()" => lambda {|actual| actual =~ /bar/} }
       xml = Matcher::Xml.new("<bookstore><book>foo</book></bookstore", custom_matchers)
-      xml.match("<bookstore><book>bar</book></bookstore").should be_true 
-      xml.mismatches.should be_empty
-      xml.matches.should have(3).matches
-    end
-    
-    it "can be matched on" do
-      xml = Matcher::Xml.new("<bookstore><book>foo</book></bookstore")
-      xml.match_on("/bookstore/book/text()") { |actual| actual =~ /bar/ }
-      xml.match("<bookstore><book>bar</book></bookstore").should be_true 
-      xml.mismatches.should be_empty
-      xml.matches.should have(3).matches
+      xml.match("<bookstore><book>bar</book></bookstore").should be_true
     end
 
-    it "supports 'on'" do
+    it "supports match_on" do
+      xml = Matcher::Xml.new("<bookstore><book>foo</book></bookstore")
+      xml.match_on("/bookstore/book/text()") { |actual| actual =~ /bar/ }
+      xml.match("<bookstore><book>bar</book></bookstore").should be_true
+    end
+
+    it "supports on" do
       matcher = Matcher::Xml.new("<bookstore><book>foo</book></bookstore")
       matcher.on("/bookstore/book/text()") { |actual| actual =~ /bar/ }
-      matcher.match("<bookstore><book>bar</book></bookstore").should be_true 
-      matcher.mismatches.should be_empty
-      matcher.matches.should have(3).matches      
+      matcher.match("<bookstore><book>bar</book></bookstore").should be_true
     end
 
     it "tells if a custom matcher was used" do
       xml = Matcher::Xml.new("<bookstore><book>foo</book></bookstore")
       xml.match_on("/bookstore/book/text()") { |actual| actual =~ /bar/ }
-      xml.match("<bookstore><book>bar</book></bookstore").should be_true 
+      xml.match("<bookstore><book>bar</book></bookstore")
       xml.matches["/bookstore/book/text()"].was_custom_matched.should be_true
       xml.matches["/bookstore/book"].was_custom_matched.should be_false
     end
-    
+
   end
 
 end

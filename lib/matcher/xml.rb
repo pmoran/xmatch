@@ -31,7 +31,7 @@ module Matcher
 
     def record(path, result, expected, actual)
       # support 0 as true (for regex matches)
-      r = !result || result.nil? ? false : true
+      r = (!result || result.nil?) ? false : true
       was_custom_matched = @custom_matchers[path] ? true : false
       @results[path] = OpenStruct.new(:result => r, :expected => expected, :actual => actual, :was_custom_matched => was_custom_matched)
     end

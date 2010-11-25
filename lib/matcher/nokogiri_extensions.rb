@@ -16,7 +16,7 @@ module Nokogiri
     class Document
 
       def match?(other, matcher)
-        matching(other, matcher)
+        matching(other, matcher) ? true : false
       end
 
     end
@@ -54,13 +54,12 @@ module Nokogiri
     class Text
 
       def match?(other, matcher)
-        @matcher = matcher
         other_elem = matching(other, matcher)
         return false unless other_elem
 
         custom_matcher = matcher.custom_matchers[path]
         match = custom_matcher ? custom_matcher.call(other_elem.content) : (content == other_elem.content)
-        @matcher.record(self.path, match, content, other_elem.content)
+        matcher.record(self.path, match, content, other_elem.content)
         match
       end
 

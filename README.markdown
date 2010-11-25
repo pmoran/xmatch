@@ -1,7 +1,7 @@
 XMatch
 ==============
 
-XMatch is a Ruby library for comparing two XML documents and reporting on mismatches. An XML document will match another if:
+XMatch is a Ruby library for comparing two XML documents and reporting on matches and mismatches. An XML document will match another if:
 
 * elements have the same name
 * elements have the same number of children
@@ -14,24 +14,24 @@ XMatch uses Nokogiri for xml parsing.
 
 Matching XML
 ------------
-Given two XML documents as strings, XMatch is run by:
+Given two XML documents as strings (or Nokogiri Documents), XMatch is run by:
 
-	xml = Matcher::Xml.new(lhs)
-	xml.match(rhs)
+	matcher = Matcher::Xml.new(expected)
+	matcher.match(actual)
 
 A matcher provides access to the match information by xpath values:
 
-	xml.matches
-	xml.mismatches
+	matcher.matches
+	matcher.mismatches
 
 Custom matchers
 ---------------
 The actual values of some xml elements are hard to know in advance (timestamps and ids being typical examples). XMatch allows custom matchers to be applied
 to provide a good guess at a match in advance of the match being run. Custom matchers are predicates provided as Ruby Procs, identified by the xpath of the element they should be applied to.
 
-	xml = Matcher::Xml.new("<bookstore id='1'></bookstore>")
-	xml.match_on("/bookstore/@id") { |actual| actual =~ /\d+/ }
-	xml.match("<bookstore id='2'></bookstore>") # ==> true
+	matcher = Matcher::Xml.new("<bookstore id='1'></bookstore>")
+	matcher.on("/bookstore/@id") { |actual| actual =~ /\d+/ }
+	matcher.match("<bookstore id='2'></bookstore>") # ==> true
 
 Formatting match results
 ------------------------
