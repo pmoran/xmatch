@@ -2,4 +2,8 @@ source :rubygems
 
 gem "rake"
 gem "nokogiri"
-gem "rspec", :require => "spec"
+
+group :test do
+  gem "rspec", :require => "spec"
+  gem "rcov"
+end

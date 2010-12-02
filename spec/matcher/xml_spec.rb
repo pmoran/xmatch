@@ -339,7 +339,7 @@ describe Matcher::Xml do
       xml.match("<bookstore><book>bar</book></bookstore").should be_true
     end
 
-    it "supports on" do
+    it "supports 'on' style" do
       matcher = Matcher::Xml.new("<bookstore><book>foo</book></bookstore")
       matcher.on("/bookstore/book/text()") { |actual| actual =~ /bar/ }
       matcher.match("<bookstore><book>bar</book></bookstore").should be_true
