@@ -17,8 +17,11 @@ module Matcher
       @results = {}
     end
 
-    def match_on(path, &blk)
-      @custom_matchers[path] = blk
+    def match_on(path, options = {}, &blk)
+      raise ArgumentError.new("Using block AND options is not supported for custom matching") if blk && !options.empty?
+      excluding = options[:excluding]
+      raise ArgumentError.new "'excluding' option must be a regular expression" if excluding && !excluding.kind_of?(Regexp)
+      @custom_matchers[path] = blk ? blk : options
     end
     
     alias_method :on, :match_on

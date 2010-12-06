@@ -198,7 +198,7 @@ describe Matcher::Xml do
       end
 
     end
-    
+
     it "should provides all results empty by default" do
       Matcher::Xml.new(@lhs).results.should be_empty
     end
@@ -308,49 +308,85 @@ describe Matcher::Xml do
 
   end
 
-  context "with custom matchers" do
+  describe "with custom matchers" do
 
-    it "can be provided when created" do
-      xml = Matcher::Xml.new("<bookstore id='1'></bookstore>", {"my path" => "my predicate"})
-      xml.custom_matchers.should have(1).matcher
+    context "provided at create time" do
+
+      it "should be stored" do
+        Matcher::Xml.new("<bookstore</bookstore>", {"my path" => "my predicate"}).custom_matchers.should have(1).matcher
+      end
+
+      it "can be used on an attribute value" do
+        custom_matchers = { "/bookstore/@id" => lambda {|actual| actual == '2'} }
+        xml = Matcher::Xml.new("<bookstore id='1'></bookstore>", custom_matchers)
+        xml.match("<bookstore id='2'></bookstore>").should be_true
+      end
+
+      it "can be used on an element value" do
+        custom_matchers = { "/bookstore/book/text()" => lambda {|actual| actual == 'bar'} }
+        xml = Matcher::Xml.new("<bookstore><book>foo</book></bookstore", custom_matchers)
+        xml.match("<bookstore><book>bar</book></bookstore").should be_true
+      end
+
     end
 
-    it "can be used on an attribute value" do
-      custom_matchers = { "/bookstore/@id" => lambda {|actual| actual == '2'} }
-      xml = Matcher::Xml.new("<bookstore id='1'></bookstore>", custom_matchers)
-      xml.match("<bookstore id='2'></bookstore>").should be_true
-    end
+    context "using match_on" do
 
-    it "can be used on an element value" do
-      custom_matchers = { "/bookstore/book/text()" => lambda {|actual| actual == 'bar'} }
-      xml = Matcher::Xml.new("<bookstore><book>foo</book></bookstore", custom_matchers)
-      xml.match("<bookstore><book>bar</book></bookstore").should be_true
-    end
+      before(:each) do
+        @matcher = Matcher::Xml.new("<bookstore><book>foo text</book></bookstore")
+      end
 
-    it "support regex matching" do
-      custom_matchers = { "/bookstore/book/text()" => lambda {|actual| actual =~ /bar/} }
-      xml = Matcher::Xml.new("<bookstore><book>foo</book></bookstore", custom_matchers)
-      xml.match("<bookstore><book>bar</book></bookstore").should be_true
-    end
+      it "supports match_on with a regex predicate" do
+        @matcher.match_on("/bookstore/book/text()") { |actual| actual =~ /bar/ }
+        @matcher.match("<bookstore><book>bar</book></bookstore").should be_true
+      end
 
-    it "supports match_on" do
-      xml = Matcher::Xml.new("<bookstore><book>foo</book></bookstore")
-      xml.match_on("/bookstore/book/text()") { |actual| actual =~ /bar/ }
-      xml.match("<bookstore><book>bar</book></bookstore").should be_true
-    end
+      it "supports match_on with an equality predicate" do
+        @matcher.match_on("/bookstore/book/text()") { |actual| actual == "foo text" }
+        @matcher.match("<bookstore><book>foo text</book></bookstore").should be_true
+      end
 
-    it "supports 'on' style" do
-      matcher = Matcher::Xml.new("<bookstore><book>foo</book></bookstore")
-      matcher.on("/bookstore/book/text()") { |actual| actual =~ /bar/ }
-      matcher.match("<bookstore><book>bar</book></bookstore").should be_true
-    end
+      it "tells if a custom matcher was used" do
+        @matcher.match_on("/bookstore/book/text()") { |actual| actual =~ /bar/ }
+        @matcher.match("<bookstore><book>bar</book></bookstore")
+        @matcher.matches["/bookstore/book/text()"].was_custom_matched.should be_true
+        @matcher.matches["/bookstore/book"].was_custom_matched.should be_false
+      end
 
-    it "tells if a custom matcher was used" do
-      xml = Matcher::Xml.new("<bookstore><book>foo</book></bookstore")
-      xml.match_on("/bookstore/book/text()") { |actual| actual =~ /bar/ }
-      xml.match("<bookstore><book>bar</book></bookstore")
-      xml.matches["/bookstore/book/text()"].was_custom_matched.should be_true
-      xml.matches["/bookstore/book"].was_custom_matched.should be_false
+      it "supports 'on' style" do
+        @matcher.on("/bookstore/book/text()") { |actual| actual =~ /bar/ }
+        @matcher.match("<bookstore><book>bar</book></bookstore").should be_true
+      end
+
+      it "handles a match with no predicate" do
+        @matcher.on("/bookstore/book/text()")
+        @matcher.should be_true
+      end
+
+      context "with excluding option" do
+
+        [/^\w{3}/, /^.*\s/].each do |regex|
+          it "supports regex matching like #{regex}" do
+            @matcher.on("/bookstore/book/text()", :excluding => regex)
+            @matcher.match("<bookstore><book>bar text</book></bookstore").should be_true
+          end
+        end
+
+        it "should fail a mismatching exclude" do
+          @matcher.on("/bookstore/book/text()", :excluding => /^\w{1}/)
+          @matcher.match("<bookstore><book>bar text</book></bookstore").should be_false
+        end
+        
+        it "throws an error when a non-regex value" do
+          lambda { @matcher.on("/bookstore/book/text()", :excluding => "foo") }.should raise_error(ArgumentError)
+        end
+
+        it "should not allow both a block and options" do
+          lambda { @matcher.on("foo", :excluding => /bar/) {|actual| actual =~ /foo/} }.should raise_error(ArgumentError)
+        end
+
+      end
+
     end
 
   end

@@ -16,14 +16,25 @@ module Nokogiri
         @matcher.record(self.path, false, Matcher::Xml::EXISTENCE, Matcher::Xml::NOT_FOUND) unless other_elem
         other_elem
       end
-      
+
       def evaluate(path, expected, actual)
         custom_matcher = @matcher.custom_matchers[path]
-        match = custom_matcher ? custom_matcher.call(actual) : expected == actual
+        match = custom_matcher ? evaluate_custom_matcher(custom_matcher, expected, actual) : expected == actual
         @matcher.record(self.path, match, expected, actual)
         match
       end
-      
+
+      private
+
+        def evaluate_custom_matcher(custom_matcher, expected, actual)
+          if custom_matcher.kind_of?(Hash)
+            exclude = custom_matcher[:excluding]
+            expected.sub(exclude, "") == actual.sub(exclude, "")
+          else
+            custom_matcher.call(actual)
+          end
+        end
+
     end
 
     class Element
