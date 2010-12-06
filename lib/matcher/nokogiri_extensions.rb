@@ -7,33 +7,14 @@ module Nokogiri
     class Node
 
       def match?(other, matcher)
-        @matcher = matcher
-        matching(other) ? true : false
+        matching(other, matcher) ? true : false
       end
 
-      def matching(other)
+      def matching(other, matcher)
         other_elem = other.at_xpath(path)
-        @matcher.record(self.path, false, Matcher::Xml::EXISTENCE, Matcher::Xml::NOT_FOUND) unless other_elem
+        matcher.record(self.path, false, Matcher::Xml::EXISTENCE, Matcher::Xml::NOT_FOUND) unless other_elem
         other_elem
       end
-
-      def evaluate(path, expected, actual)
-        custom_matcher = @matcher.custom_matchers[path]
-        match = custom_matcher ? evaluate_custom_matcher(custom_matcher, expected, actual) : expected == actual
-        @matcher.record(self.path, match, expected, actual)
-        match
-      end
-
-      private
-
-        def evaluate_custom_matcher(custom_matcher, expected, actual)
-          if custom_matcher.kind_of?(Hash)
-            exclude = custom_matcher[:excluding]
-            expected.sub(exclude, "") == actual.sub(exclude, "")
-          else
-            custom_matcher.call(actual)
-          end
-        end
 
     end
 
@@ -41,7 +22,7 @@ module Nokogiri
 
       def match?(other, matcher)
         @matcher = matcher
-        return false unless other_elem = matching(other)
+        return false unless other_elem = matching(other, matcher)
         children_match?(other_elem) & attributes_match?(other_elem)
       end
 
@@ -69,9 +50,8 @@ module Nokogiri
     class Text
 
       def match?(other, matcher)
-        @matcher = matcher
-        return false unless other_elem = matching(other)
-        evaluate(path, content, other_elem.content)
+        return false unless other_elem = matching(other, matcher)
+        matcher.evaluate(path, content, other_elem.content)
       end
 
     end
@@ -79,9 +59,8 @@ module Nokogiri
     class Attr
 
       def match?(other, matcher)
-        @matcher = matcher
-        return false unless other_elem = matching(other)
-        evaluate(path, value, other_elem.value)
+        return false unless other_elem = matching(other, matcher)
+        matcher.evaluate(path, value, other_elem.value)
       end
 
     end

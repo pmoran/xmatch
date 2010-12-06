@@ -4,7 +4,7 @@ require 'ostruct'
 module Matcher
 
   class Xml
-    
+
     NOT_FOUND = "[Not found]"
     EXISTENCE = "[Existence]"
     UNMATCHED = "[Unmatched]"
@@ -23,7 +23,7 @@ module Matcher
       raise ArgumentError.new "'excluding' option must be a regular expression" if excluding && !excluding.kind_of?(Regexp)
       @custom_matchers[path] = blk ? blk : options
     end
-    
+
     alias_method :on, :match_on
 
     def match(actual)
@@ -44,17 +44,33 @@ module Matcher
       return "mismatched" if mismatches[path]
       "unmatched"
     end
-    
+
     def matches
       results_that_are(true)
     end
-    
+
     def mismatches
       results_that_are(false)
     end
 
+    def evaluate(path, expected, actual)
+      custom_matcher = custom_matchers[path]
+      match = custom_matcher ? evaluate_custom_matcher(custom_matcher, expected, actual) : expected == actual
+      record(path, match, expected, actual)
+      match
+    end
+
     private
-    
+
+      def evaluate_custom_matcher(custom_matcher, expected, actual)
+        if custom_matcher.kind_of?(Hash)
+          exclude = custom_matcher[:excluding]
+          expected.sub(exclude, "") == actual.sub(exclude, "")
+        else
+          custom_matcher.call(actual)
+        end
+      end
+
       def results_that_are(value)
         match_info = {}
         @results.each { |path, info| match_info[path] = info if info.result == value}
