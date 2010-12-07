@@ -26,14 +26,14 @@ A matcher provides access to the match information by xpath values:
 
 Custom matchers
 ---------------
-The actual values of some xml elements are hard to know in advance (timestamps and ids being typical examples). XMatch allows custom matchers to be applied
+The actual values of some xml elements are hard to know in advance (timestamps and id's being typical examples). XMatch allows custom matchers to be applied
 to provide a good guess at a match in advance of the match being run. Custom matchers are predicates provided as Ruby Procs, identified by the xpath of the element they should be applied to. They can be applied to text and attribute values.
 
 	matcher = Matcher::Xml.new("<bookstore id='1'></bookstore>")
 	matcher.on("/bookstore/@id") { |actual| actual =~ /\d+/ }
 	matcher.match("<bookstore id='2'></bookstore>") # ==> true
 	
-An alternate syntax allows a pattern to be excluded from the match.  This is useful if values are mostly matching but differ by a pattern that cannot be know in advance (e.g. id's):
+An alternate syntax allows a pattern to be excluded from the match.  This is useful if values are mostly matching but differ by a pattern that cannot be known in advance (e.g. id's):
 
     matcher = Matcher::Xml.new("<book>This is book 123</book>")
 	matcher.on("/book/text()", :excluding => /\d{3}$/)
@@ -64,4 +64,4 @@ XMatch is packaged as a Gem.  Install with:
 Copyright
 ---------
 
-Copyright (c) 2009 Peter Moran. See LICENSE for details.
+Copyright (c) 2010 Peter Moran. See LICENSE for details.
