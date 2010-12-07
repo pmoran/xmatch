@@ -3,6 +3,9 @@ require 'ostruct'
 
 module Matcher
 
+  class MatchError < StandardError
+  end
+
   class Xml
 
     NOT_FOUND = "[Not found]"
@@ -21,7 +24,7 @@ module Matcher
       raise ArgumentError.new("Using block AND options is not supported for custom matching") if blk && !options.empty?
       excluding = options[:excluding]
       raise ArgumentError.new "'excluding' option must be a regular expression" if excluding && !excluding.kind_of?(Regexp)
-      @custom_matchers[path] = blk ? blk : options
+      @custom_matchers[path] = blk || options
     end
 
     alias_method :on, :match_on
@@ -63,12 +66,26 @@ module Matcher
     private
 
       def evaluate_custom_matcher(custom_matcher, expected, actual)
-        if custom_matcher.kind_of?(Hash)
-          exclude = custom_matcher[:excluding]
-          expected.sub(exclude, "") == actual.sub(exclude, "")
+        custom_matcher.kind_of?(Hash) ? evaluate_as_regex(custom_matcher, expected, actual) : custom_matcher.call(actual)
+      end
+
+      def evaluate_as_regex(custom_matcher, expected, actual)
+        exclude_pattern = custom_matcher[:excluding]
+        match_data = expected.match(exclude_pattern)
+        return false unless match_data
+        
+        if match_data.captures.empty?
+          lhs = expected.sub(exclude_pattern, "")
+          rhs = actual.sub(exclude_pattern, "")
         else
-          custom_matcher.call(actual)
+          lhs_exclude = expected.match(exclude_pattern).captures.first
+          rhs_exclude = actual.match(exclude_pattern).captures.first
+          lhs = expected.sub(/#{lhs_exclude}/, "")
+          rhs = actual.sub(/#{rhs_exclude}/, "")
         end
+
+        raise Matcher::MatchError.new("excluding option resulted in comparing empty values") if lhs.empty?
+        lhs == rhs
       end
 
       def results_that_are(value)

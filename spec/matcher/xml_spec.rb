@@ -358,18 +358,37 @@ describe Matcher::Xml do
         @matcher.match("<bookstore><book>bar</book></bookstore").should be_true
       end
 
-      it "handles a match with no predicate" do
-        @matcher.on("/bookstore/book/text()")
-        @matcher.should be_true
-      end
-
       context "with excluding option" do
 
         [/^\w{3}/, /^.*\s/].each do |regex|
           it "supports regex matching like #{regex}" do
+            @matcher.match("<bookstore><book>bar text</book></bookstore").should be_false
             @matcher.on("/bookstore/book/text()", :excluding => regex)
             @matcher.match("<bookstore><book>bar text</book></bookstore").should be_true
           end
+        end
+
+        it "should support group excluding" do
+          matcher = Matcher::Xml.new("<book>This is book 123</book>")
+        	matcher.on("/book/text()", :excluding => /\d{3}$/)
+        	matcher.match("<book>This is book 456</book>").should be_true
+        end
+        
+        it "should support group excludes with a variable length" do
+        	matcher = Matcher::Xml.new("<book>Book 123 is here</book>")
+        	matcher.on("/book/text()", :excluding => /.*\s(\d{3,6})\s.*/)
+        	matcher.match("<book>Book 123456 is here</book>").should be_true
+        end
+        
+        it "handles a non captured group" do
+        	matcher = Matcher::Xml.new("<book>foo text</book>")
+        	matcher.on("/book/text()", :excluding => /(blah)/)
+        	matcher.match("<book>bar text</book>").should be_false
+        end
+
+        it "should raise an error if excluding would result in matching empty values" do
+          @matcher.on("/bookstore/book/text()", :excluding => /.*/)
+          lambda { @matcher.match("<bookstore><book>foo text</book></bookstore") }.should raise_error(Matcher::MatchError)
         end
 
         it "should fail a mismatching exclude" do
