@@ -11,6 +11,7 @@ module Matcher
     def initialize(matcher, args = {})
       @matcher = matcher
       @report_dir = args[:report_dir] || '/tmp/xmatch'
+      @generated_xml_dir = File.join(@report_dir, "generated_xml")
       @prefix = args[:prefix]
     end
 
@@ -21,14 +22,16 @@ module Matcher
         match_data << match_info_for(elem)
         elem.attributes.values.each { | attr | match_data << match_info_for(attr) }
       end
-      match_data.sort! {|a, b| a.line <=> b.line}
-
-      FileUtils.mkdir_p(@report_dir)
-      filename = @prefix ? "#{@prefix}-xmatch.html" : "xmatch.html"
-      File.open(File.join(@report_dir, filename), 'w') { |f|  f.write(generate_html(match_data)) }
+      create_report(match_data.sort {|a, b| a.line <=> b.line})
     end
 
     private
+
+      def create_report(match_data)
+        FileUtils.mkdir_p(@generated_xml_dir)
+        html = generate_html(match_data, create_expected_file, create_actual_file)
+        File.open(File.join(@report_dir, prefixed("xmatch.html")), 'w') { |f|  f.write(html) }
+      end
 
       def match_info_for(elem)
         info = @matcher.results[elem.path]
@@ -41,12 +44,9 @@ module Matcher
                        :custom_matched => info ? info.was_custom_matched : false)
       end
 
-      def generate_html(data)
-        actual_filename = create_actual_file
-        expected_filename = create_expected_file
+      def generate_html(match_info, expected_filename, actual_filename)
         xml = @matcher
         completedness = compute_completedness
-        match_info = data
         html = ERB.new(File.read(TEMPLATE))
         html.result(binding)
       end
@@ -64,10 +64,13 @@ module Matcher
       end
 
       def write_xml(name, xml)
-        file_name = "#{name}-#{Time.now.to_i}.xml"
-        file_name = "#{@prefix}-#{file_name}" if @prefix
-        File.open(File.join(@report_dir, file_name), 'w') { |f| f.write(xml)}
-        file_name
+        path = File.join(@generated_xml_dir,  prefixed("#{name}-#{Time.now.to_i}.xml"))
+        File.open(path, 'w') { |f| f.write(xml)}
+        path
+      end
+
+      def prefixed(name)
+        @prefix ? "#{@prefix}-#{name}" : name
       end
 
   end
