@@ -10,127 +10,132 @@
 		/***************STRUCTURE***************************/
 		/*Reset*/
 		* {
-		margin:0;
+			margin: 0;
 		}
 
 		body {
-		min-width:640px; 
+			min-width: 640px;
 		}
 		/* Absolute positioned header for all browsers*/
 		#header-wrapper {
-		position:absolute;
-		top:0;
-		left:0;
-		width:100%;
-		height:6em;
+			position: absolute;
+			top: 0;
+			left: 0;
+			width: 100%;
+			height: 6em;
 		}
 		/* Reset header position to fixed for real browsers such as Firefox*/
 		body>#header-wrapper {
-		position:fixed;
+			position: fixed;
 		}
 
 		#header {
-		height:8em;
-		margin:0 auto;
+			height: 8em;
+			margin: 0 auto;
 		}
 
 		#content-wrapper {
-		padding:6em 0 0 0;
-		margin-left:0;
-		margin-top: 30px;
-		voice-family: "\"}\""; 
-		voice-family:inherit;
-		margin-left:16px;
-		padding-bottom:60px;
+			padding: 6em 0 0 0;
+			margin-left: 0;
+			margin-top: 30px;
 		}
-
+		
 		body>#content-wrapper {
-		margin-left:0;
+			margin-left: 0;
 		}
 
 		#content {
-		margin:0 auto;
+			margin: 0 auto;
 		}
 
 		#footer-wrapper {
-		width:100%;
-		position:absolute;
-		bottom:0;
-		left:0;
-		height:30px;
+			width: 100%;
+			position: absolute;
+			bottom: 0;
+			left: 0;
+			height: 30px;
 		}
 
 		body>#footer-wrapper {
-		position:fixed;
+			position: fixed;
 		}
 
 		#footer {
-		height:40px;
-		margin:0 auto;
-		font-size: 12px;
+			height: 40px;
+			margin: 0 auto;
+			font-size: 12px;
 		}
 
 		/***************STYLE***************************/
 		body,
-		html{
-		font-family:"Lucida Grande", Geneva, Verdana, Arial, Helvetica, sans-serif;
-		color:#000;font-family:"Trebuchet MS", Georgia, Verdana, Arial, Helvetica, sans-serif;
-		background:#ddd;
-		font-size:14px;
+		html {
+			font-family: "Lucida Grande", Geneva, Verdana, Arial, Helvetica, sans-serif;
+			color: #000;
+			font-family: "Trebuchet MS", Georgia, Verdana, Arial, Helvetica, sans-serif;
+			background: #ddd;
+			font-size: 14px;
 		}
 
 		#header,
 		#footer {
-		background:gray;
-		color:#fff;
+			background: gray;
+			color: #fff;
 		}
 
 		#content {
-		background:#fff;
-		color:#000;
+			background: #fff;
+			color: #000;
 		}
 
 		h1,
 		h2 {
-		padding:0;
-		margin:0 0 0 10px;
+			padding: 0;
+			margin: 0 0 0 10px;
 		}
 
 		h1 {
-		font-size:1.3em;
-		text-align:left;
-		padding-top:0.5em;
+			font-size: 1.3em;
+			text-align: left;
+			padding-top: 0.5em;
 		}
 
 		h2 {
-		font-size:1.1em;
-		padding-top:1em;
-		margin-top:0;
+			font-size: 1.1em;
+			padding-top: 1em;
+			margin-top: 0;
 		}
 
 		#footer p {
-		margin:0 0 0 5px;
-		padding:0;
+			margin: 0 0 0 5px;
+			padding: 0;
 		}
 
 		#footer a {
-		color:#fff;
+			color: #fff;
 		}
 
 		ul, p {
-		line-height:1.45em;
+			line-height: 1.45em;
 		}
 
 		p {
-		margin:0 10% 0 10px;
-		padding-bottom:10px;
+			margin: 0 10% 0 10px;
+			padding-bottom: 10px;
 		}
 
-		table {	width: 100%;	}
+		table {
+			width: 100%;
+		}
 
-		.matched {  background-color: #DBFFB4 }
-		.mismatched { background-color: #FA5858 }
-		.unmatched { background-color: #FFFBD3 }
+		.matched {
+			background-color: #DBFFB4
+		}
+		.mismatched {
+			background-color: #FA5858
+		}
+		.unmatched {
+			background-color: #FFFBD3
+		}
 
 		</style>
 	</head>
@@ -139,18 +144,10 @@
 			<div id="content">
 				<table border="0" cellspacing="2" cellpadding="5">
 					<tr>
-						<th>
-							Line
-						</th>
-						<th>
-							Path
-						</th>
-						<th>
-							Expected
-						</th>
-						<th>
-							Actual
-						</th>
+						<th>Line</th>
+						<th>Path</th>
+						<th>Expected</th>
+						<th>Actual</th>
 					</tr><% match_info.each do | match | %>
 					<tr class="<%= match.result %>">
 						<td>
@@ -182,13 +179,15 @@
 					Expected xml document is <b><%= completedness %>%</b> 'matched'.
 				</p>
 				<p>
-					<a href='<%=expected_filename%>' target='_blank'>Expected xml</a> | <a href='<%=actual_filename%>'  target='_blank'>Actual xml</a>
+					<a href='%3C%=expected_filename%%3E' target='_blank'>Expected xml</a> | <a href='%3C%=actual_filename%%3E' target='_blank'>Actual xml</a>
 				</p>
 			</div>
 		</div>
 		<div id="footer-wrapper">
 			<div id="footer">
-				<p><a href='https://github.com/pmoran/xmatch'>XMatch</a> &copy 2010 Peter Moran</p>
+				<p>
+					<a href='https://github.com/pmoran/xmatch'>XMatch</a> &copy; 2010 Peter Moran
+				</p>
 			</div>
 		</div>
 	</body>
