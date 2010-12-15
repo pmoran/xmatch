@@ -38,7 +38,7 @@ describe Matcher::HtmlFormatter do
 
   end
 
-  describe "generated html" do
+  describe "generating html" do
 
     before(:each) do
       Matcher::HtmlFormatter.new(@matcher).format
@@ -60,7 +60,7 @@ describe Matcher::HtmlFormatter do
       @html.should include "<b>50%</b>"
     end
 
-    context 'link to generated xml files' do
+    context 'linking to generated xml files' do
 
       %w[expected actual].each do |file|
         it "should render a link to the #{file} file" do
