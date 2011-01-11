@@ -4,7 +4,7 @@ require 'fileutils'
 describe Matcher::HtmlFormatter do
 
   before(:each) do
-    FileUtils.rm_r("/tmp/xmatch")
+    FileUtils.rm_r("/tmp/xmatch") if File.exists?("/tmp/xmatch")
     @expected_xml = "<foo><bar1></bar1></foo>"
     @matcher = Matcher::Xml.new(@expected_xml)
     @matcher.match("<foo><bar1></bar1><bar2></bar2></foo>")

@@ -41,7 +41,7 @@ module Nokogiri
             return false
           end
 
-          attributes.values.each { |attr|  match = match & attr.match?(other, @matcher) }
+          attributes.values.each { |attr|  match &= attr.match?(other, @matcher) }
           match
         end
 

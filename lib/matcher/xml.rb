@@ -102,7 +102,7 @@ module Matcher
       def compare(lhs, rhs)
         return false unless lhs && rhs
         match = true
-        lhs.traverse { |node| match = match & node.match?(rhs, self) }
+        lhs.traverse { |node| match &= node.match?(rhs, self) }
         match
       end
 
