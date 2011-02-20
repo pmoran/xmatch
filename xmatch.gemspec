@@ -9,7 +9,7 @@ Gem::Specification.new do |gem|
   gem.authors = ["Peter Moran"]
   gem.email = "workingpeter@gmail.com"
 
-  gem.version = Representative::VERSION.dup
+  gem.version = Matcher::VERSION.dup
   gem.platform = Gem::Platform::RUBY
   gem.add_runtime_dependency("nokogiri", "~> 1.4.2")
 
