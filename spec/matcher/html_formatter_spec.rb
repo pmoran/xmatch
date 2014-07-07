@@ -63,8 +63,8 @@ describe Matcher::HtmlFormatter do
     context 'linking to generated xml files' do
 
       %w[expected actual].each do |file|
-        it "should render a link to the #{file} file" do
-          @html.should include "href='/tmp/xmatch/generated_xml/#{file}-#{@now.to_i}.xml'"
+        it "should render a relative link to the #{file} file" do
+          @html.should include "href='generated_xml/#{file}-#{@now.to_i}.xml'"
         end
       end
 

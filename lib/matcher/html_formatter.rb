@@ -29,7 +29,8 @@ module Matcher
 
       def create_report(match_data)
         FileUtils.mkdir_p(@generated_xml_dir)
-        html = generate_html(match_data, create_expected_file, create_actual_file)
+        report_dir_length = @report_dir.length + 1
+        html = generate_html(match_data, create_expected_file.slice(report_dir_length..-1), create_actual_file.slice(report_dir_length..-1))
         File.open(File.join(@report_dir, prefixed("xmatch.html")), 'w') { |f|  f.write(html) }
       end
 
